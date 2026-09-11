@@ -3,23 +3,54 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
+	"net/url"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 )
 
 type site struct {
-	Brand       string            `json:"brand"`
-	URL         string            `json:"url"`
-	Tagline     string            `json:"tagline"`
-	Description string            `json:"description"`
-	Locale      string            `json:"locale"`
-	GA4         string            `json:"ga4"`
-	Author      author            `json:"author"`
-	Nav         [][2]string       `json:"nav"`
-	Standalone  []string          `json:"standalone"`
-	Dates       map[string]string `json:"dates"`
+	Brand        string                 `json:"brand"`
+	URL          string                 `json:"url"`
+	Tagline      string                 `json:"tagline"`
+	Description  string                 `json:"description"`
+	Descriptions pageDescriptions       `json:"descriptions"`
+	Locale       string                 `json:"locale"`
+	GA4          string                 `json:"ga4"`
+	Author       author                 `json:"author"`
+	Nav          []navItem              `json:"nav"`
+	Listed       []string               `json:"listed"` // articles shown in the lists, in order
+	Articles     map[string]articleMeta `json:"articles"`
+	Captions     []photoCaption         `json:"captions"`
+}
+
+// pageDescriptions are the meta descriptions of the pages that are not articles.
+// An empty one falls back to the site description.
+type pageDescriptions struct {
+	Blog    string `json:"blog"`
+	About   string `json:"about"`
+	Privacy string `json:"privacy"`
+}
+
+type navItem struct {
+	Label string `json:"label"`
+	Href  string `json:"href"`
+}
+
+// articleMeta is what site.json says about one article, keyed by its file name without .md.
+type articleMeta struct {
+	DisplayDate string `json:"date"`       // "September 2026" or "2026-09-10"
+	Section     string `json:"section"`    // article:section, "" for none
+	SchemaType  string `json:"schemaType"` // schema.org type, defaultArticleType when empty
+}
+
+// photoCaption is shown under the feature photo of every article it lists.
+type photoCaption struct {
+	HTML     template.HTML `json:"html"`
+	Articles []string      `json:"articles"`
 }
 
 type author struct {
@@ -31,7 +62,8 @@ type author struct {
 	Twitter  string `json:"twitter"`
 }
 
-func loadSite(path string) (*site, error) {
+// loadSite reads the site configuration. A non-empty authorEmail replaces the email in the file.
+func loadSite(path, authorEmail string) (*site, error) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -40,15 +72,84 @@ func loadSite(path string) (*site, error) {
 	if err := json.Unmarshal(raw, &s); err != nil {
 		return nil, fmt.Errorf("%s: %w", path, err)
 	}
+	if authorEmail != "" {
+		s.Author.Email = authorEmail
+	}
+	if err := s.validate(); err != nil {
+		return nil, fmt.Errorf("%s: %w", path, err)
+	}
 	s.URL = strings.TrimRight(s.URL, "/")
 	if s.Locale == "" {
 		s.Locale = defaultLocale
 	}
+	for _, description := range []*string{&s.Descriptions.Blog, &s.Descriptions.About, &s.Descriptions.Privacy} {
+		if *description == "" {
+			*description = s.Description
+		}
+	}
 	return &s, nil
+}
+
+var emailAddress = regexp.MustCompile(`^[^\s@<>"'&]+@[^\s@<>"'&]+\.[^\s@<>"'&]+$`)
+
+// validate rejects config values that would carry markup or a javascript: URL into the pages.
+func (s *site) validate() error {
+	for field, link := range map[string]string{"url": s.URL, "author.linkedin": s.Author.LinkedIn, "author.github": s.Author.GitHub} {
+		if link != "" && !isWebURL(link) {
+			return fmt.Errorf("%s must be an http(s) URL, got %q", field, link)
+		}
+	}
+	for _, item := range s.Nav {
+		if !isSiteLink(item.Href) {
+			return fmt.Errorf("nav %q must link to a path on this site, got %q", item.Label, item.Href)
+		}
+	}
+	if s.Author.Email != "" && !emailAddress.MatchString(s.Author.Email) {
+		return fmt.Errorf("author email %q is not a plain address", s.Author.Email)
+	}
+	return nil
+}
+
+func isWebURL(link string) bool {
+	u, ok := parseLink(link)
+	return ok && (u.Scheme == "http" || u.Scheme == "https") && u.Host != ""
+}
+
+func isSiteLink(link string) bool {
+	u, ok := parseLink(link)
+	return ok && u.Scheme == "" && u.Host == ""
+}
+
+// parseLink parses a link from the config, refusing quotes, angle brackets and spaces.
+func parseLink(link string) (*url.URL, bool) {
+	if strings.ContainsAny(link, "\"'<> ") {
+		return nil, false
+	}
+	u, err := url.Parse(link)
+	return u, err == nil
 }
 
 func (s *site) abs(path string) string {
 	return s.URL + "/" + strings.TrimLeft(path, "/")
+}
+
+// articleMeta returns what the config says about the named article, with the schema type defaulted.
+func (s *site) articleMeta(name string) articleMeta {
+	meta := s.Articles[name]
+	if meta.SchemaType == "" {
+		meta.SchemaType = defaultArticleType
+	}
+	return meta
+}
+
+// captionFor returns the caption under the named article's feature photo, "" for none.
+func (s *site) captionFor(article string) template.HTML {
+	for _, c := range s.Captions {
+		if slices.Contains(c.Articles, article) {
+			return c.HTML
+		}
+	}
+	return ""
 }
 
 func (a author) sameAs() []string {

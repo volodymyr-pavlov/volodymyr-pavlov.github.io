@@ -19,5 +19,5 @@ Davis and Kenny Burrell. The coffee is a Chemex: I gave up on espresso machines 
 a light roast, water just off the boil, a slow pour, and four minutes of waiting. The result is a clean cup with nothing
 to hide behind, which is also how I like my code.
 
-The best way to reach me is by [email](mailto:volodymyr.pavlov.13@gmail.com) or on
+The best way to reach me is by [email](mailto:{{email}}) or on
 [LinkedIn](https://www.linkedin.com/in/vladymyrpavlov/). Code lives on [GitHub](https://github.com/grakholsky).

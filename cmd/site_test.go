@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"path/filepath"
+	"testing"
+)
 
 func TestIsoDate(t *testing.T) {
 	cases := map[string]string{
@@ -67,6 +70,82 @@ func TestSiteAbsJoinsExactlyOneSlash(t *testing.T) {
 	}
 	if got := s.abs(""); got != "https://example.com/" {
 		t.Errorf("abs(\"\") = %q", got)
+	}
+}
+
+func TestCaptionForSharesOneCaptionAcrossArticles(t *testing.T) {
+	s := &site{Captions: []photoCaption{{HTML: "Gopher.", Articles: []string{"a", "b"}}}}
+	if got := s.captionFor("b"); got != "Gopher." {
+		t.Errorf("captionFor(\"b\") = %q, want %q", got, "Gopher.")
+	}
+}
+
+func TestCaptionForUnlistedArticleIsEmpty(t *testing.T) {
+	s := &site{Captions: []photoCaption{{HTML: "Gopher.", Articles: []string{"a"}}}}
+	if got := s.captionFor("c"); got != "" {
+		t.Errorf("captionFor(\"c\") = %q, want empty", got)
+	}
+}
+
+func TestValidateRejectsMarkupAndScriptURLs(t *testing.T) {
+	bad := []site{
+		{URL: "javascript:alert(1)"},
+		{Author: author{LinkedIn: `https://x.test/"><script>`}},
+		{Author: author{GitHub: "javascript://x.test/%0aalert(1)"}},
+		{Nav: []navItem{{"Evil", "javascript:alert(1)"}}},
+		{Nav: []navItem{{"Away", "//evil.test/"}}},
+		{Nav: []navItem{{"Quote", `x"y.html`}}},
+		{Author: author{Email: `a@b.test"><script>`}},
+	}
+	for _, s := range bad {
+		if err := s.validate(); err == nil {
+			t.Errorf("validate(%+v) = nil, want an error", s)
+		}
+	}
+}
+
+func TestValidateAcceptsAPlainConfig(t *testing.T) {
+	good := site{
+		URL:    "https://x.test/blog",
+		Author: author{LinkedIn: "https://www.linkedin.com/in/x/", GitHub: "https://github.com/x", Email: "a.b+c@d.test"},
+		Nav:    []navItem{{"Home", ""}, {"Blog", "blog/"}},
+	}
+	if err := good.validate(); err != nil {
+		t.Errorf("validate() = %v", err)
+	}
+}
+
+func TestLoadSiteTakesTheAuthorEmailItIsGiven(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, dir, "site.json", `{"author": {"email": "old@x.test"}}`)
+	s, err := loadSite(filepath.Join(dir, "site.json"), "new@x.test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s.Author.Email != "new@x.test" {
+		t.Errorf("author email = %q, want new@x.test", s.Author.Email)
+	}
+}
+
+func TestLoadSiteFallsBackToTheSiteDescription(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, dir, "site.json", `{"description": "Site.", "descriptions": {"about": "About."}}`)
+	s, err := loadSite(filepath.Join(dir, "site.json"), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := (pageDescriptions{Blog: "Site.", About: "About.", Privacy: "Site."}); s.Descriptions != want {
+		t.Errorf("descriptions = %+v, want %+v", s.Descriptions, want)
+	}
+}
+
+func TestArticleMetaDefaultsTheSchemaType(t *testing.T) {
+	s := &site{Articles: map[string]articleMeta{"a": {Section: "Go", SchemaType: "TechArticle"}}}
+	if got := s.articleMeta("a").SchemaType; got != "TechArticle" {
+		t.Errorf("articleMeta(\"a\").SchemaType = %q, want TechArticle", got)
+	}
+	if got := s.articleMeta("unlisted").SchemaType; got != defaultArticleType {
+		t.Errorf("articleMeta(\"unlisted\").SchemaType = %q, want %s", got, defaultArticleType)
 	}
 }
 

@@ -1,4 +1,4 @@
-# Bit Flags in Go: Doing More with Less
+# Bitwise in Go: Doing More with Less
 
 Hey there! Did you know you can stash a ton of boolean values, states, and features inside just *one* integer? By giving
 each property its own bit, you can save space and simplify your code. Let's look at how to pull this off in Go, and

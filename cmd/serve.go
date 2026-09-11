@@ -28,6 +28,7 @@ func serve(root string, port int) error {
 		files.ServeHTTP(w, r)
 	})
 
+	// Bind to loopback only: the preview is for this machine, not the local network.
 	fmt.Printf("http://localhost:%d/\n", port)
-	return http.ListenAndServe(fmt.Sprintf(":%d", port), mux)
+	return http.ListenAndServe(fmt.Sprintf("localhost:%d", port), mux)
 }

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>{{.Title}}</title>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Security-Policy" content="{{.CSP}}" />
+<meta name="description" content="{{.Description}}" />
+<meta name="author" content="{{.Site.Author.Name}}" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="canonical" href="{{.Canon}}" />
+<meta property="og:site_name" content="{{.Site.Brand}}" />
+<meta property="og:type" content="{{.Type}}" />
+<meta property="og:title" content="{{.OGTitle}}" />
+<meta property="og:description" content="{{.Description}}" />
+<meta property="og:url" content="{{.Canon}}" />
+<meta property="og:locale" content="{{.Site.Locale}}" />
+<meta property="og:image" content="{{.ImgURL}}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:type" content="{{.ImgType}}" />
+<meta property="og:image:alt" content="{{.OGTitle}} — {{.Site.Brand}}" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="{{.OGTitle}}" />
+<meta name="twitter:description" content="{{.Description}}" />
+<meta name="twitter:image" content="{{.ImgURL}}" />
+{{with .Site.Author.Twitter}}<meta name="twitter:creator" content="{{.}}" />
+{{end}}{{.Head}}<link rel="preload" href="{{.Root}}css/fonts/raleway-latin.woff2" as="font" type="font/woff2" crossorigin />
+<link href="{{.Root}}css/site.css" rel="stylesheet" type="text/css" />
+{{.JSONLD}}
+{{.Consent}}</head>
+<body>
+<div id="header">
+<a class="mark" href="{{.Home}}" aria-label="Home">{{.Logo}}</a>
+<div class="masthead">
+<p class="name">{{.Site.Brand}}</p>
+<p class="nav">
+  {{.Nav}}
+</p>
+</div>
+</div>
+
+<div id="c">
+
+{{.Body}}
+
+<div id="footer">
+{{.Footer}}
+</div>
+
+</div>
+</body>
+</html>

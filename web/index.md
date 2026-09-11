@@ -15,7 +15,7 @@ and this is where I write them down.
         </svg>
     </a>
     and
-    <a class="icon" href="mailto:volodymyr.pavlov.13@gmail.com" aria-label="Email">
+    <a class="icon" href="mailto:{{email}}" aria-label="Email">
         <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M2 4h20a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm1 3.2V18h18V7.2l-9 6.3-9-6.3zM3.6 6l8.4 5.9L20.4 6H3.6z"/>
         </svg>

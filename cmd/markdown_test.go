@@ -32,3 +32,31 @@ func TestRenderGivesHeadingsStableIDs(t *testing.T) {
 		t.Errorf("heading id is missing or wrong: %s", got)
 	}
 }
+
+func TestRenderHighlightsGoCode(t *testing.T) {
+	source := "```go\nfunc f() bool {\n\t// return <if>\n\treturn a < b && s == \"for\" && r != 'x'\n}\n```\n"
+	got, err := render(source)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := "<pre><code class=\"language-go\"><span class=\"keyword\">func</span> f() bool {\n" +
+		"\t<span class=\"comment\">// return &lt;if&gt;</span>\n" +
+		"\t<span class=\"keyword\">return</span> a &lt; b &amp;&amp; s == <span class=\"string\">&quot;for&quot;</span> &amp;&amp; r != <span class=\"string\">'x'</span>\n" +
+		"}\n</code></pre>\n"
+	if got != want {
+		t.Errorf("render() =\n%s\nwant\n%s", got, want)
+	}
+}
+
+func TestRenderLeavesOtherCodeUnhighlighted(t *testing.T) {
+	got, err := render("```sh\nfor x in <y>; do :; done\n```\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := "<pre><code class=\"language-sh\">for x in &lt;y&gt;; do :; done\n</code></pre>\n"
+	if got != want {
+		t.Errorf("render() = %q, want %q", got, want)
+	}
+}

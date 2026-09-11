@@ -22,18 +22,29 @@ const (
 	bannerW, bannerH = 1200, 630
 	bannerPad        = 90
 	bannerInner      = bannerW - 2*bannerPad
+	topBarHeight     = 10
 
 	kickerBaseline = 118
 	kickerSize     = 34
 	kickerTracking = 2
 
 	titleTop, titleBottom = 168, 486
+	titleRuleGap          = 22 // from the rule above the title down to titleTop
 	titleMaxSize          = 68
 	titleMinSize          = 40
+	titleSizeStep         = 6
+	titleFitLines         = 3 // a title shrinks until it fits this many lines
+	titleMaxLines         = 4 // at titleMinSize it may take this many, the last one elided
+	titleLeading          = 1.24
+	// titleCapCentre lowers each baseline by about half the capital height, both as multiples of the font size,
+	// so the capitals rather than the baselines sit centred between titleTop and titleBottom.
+	titleCapCentre = 0.34
 
+	taglineRuleGap  = 20 // from titleBottom down to the rule above the tagline
 	taglineBaseline = 546
 	taglineSize     = 27
 	taglineLeading  = 36
+	taglineMaxLines = 2
 )
 
 var (
@@ -67,26 +78,26 @@ func (f fontFile) face(size float64) font.Face {
 func (b banner) render(f fontFile) ([]byte, error) {
 	img := image.NewRGBA(image.Rect(0, 0, bannerW, bannerH))
 	draw.Draw(img, img.Bounds(), &image.Uniform{paper}, image.Point{}, draw.Src)
-	fill(img, 0, 0, bannerW, 10, inkBlack)
+	fill(img, 0, 0, bannerW, topBarHeight, inkBlack)
 
 	kicker := f.face(kickerSize)
 	defer kicker.Close()
 	drawTracked(img, kicker, strings.ToUpper(b.kicker), bannerPad, kickerBaseline, kickerTracking, inkBlack)
-	fill(img, bannerPad, titleTop-22, bannerInner, 1, inkBlack)
+	fill(img, bannerPad, titleTop-titleRuleGap, bannerInner, 1, inkBlack)
 
 	size, lines := fitTitle(f, b.title)
 	title := f.face(size)
 	defer title.Close()
-	leading := int(size*1.24 + 0.5)
-	start := (titleTop+titleBottom)/2 - (len(lines)-1)*leading/2 + int(size*0.34)
+	leading := int(size*titleLeading + 0.5)
+	start := (titleTop+titleBottom)/2 - (len(lines)-1)*leading/2 + int(size*titleCapCentre)
 	for i, line := range lines {
 		drawText(img, title, line, bannerPad, start+i*leading, inkBlack)
 	}
 
-	fill(img, bannerPad, titleBottom+20, bannerInner, 1, inkRule)
+	fill(img, bannerPad, titleBottom+taglineRuleGap, bannerInner, 1, inkRule)
 	tagline := f.face(taglineSize)
 	defer tagline.Close()
-	for i, line := range wrap(tagline, b.tagline, bannerInner, 2) {
+	for i, line := range wrap(tagline, b.tagline, bannerInner, taglineMaxLines) {
 		drawText(img, tagline, line, bannerPad, taglineBaseline+i*taglineLeading, inkGrey)
 	}
 
@@ -101,16 +112,16 @@ func fitTitle(f fontFile, title string) (float64, []string) {
 	size := float64(titleMaxSize)
 	for {
 		face := f.face(size)
-		lines := wrap(face, title, bannerInner, 4)
+		lines := wrap(face, title, bannerInner, titleMaxLines)
 		face.Close()
-		if len(lines) <= 3 || size <= titleMinSize {
+		if len(lines) <= titleFitLines || size <= titleMinSize {
 			return size, lines
 		}
-		size = max(size-6, titleMinSize)
+		size = max(size-titleSizeStep, titleMinSize)
 	}
 }
 
-func wrap(face font.Face, text string, width, max int) []string {
+func wrap(face font.Face, text string, width, maxLines int) []string {
 	words := strings.Fields(text)
 	var lines []string
 	line := ""
@@ -121,7 +132,7 @@ func wrap(face font.Face, text string, width, max int) []string {
 		}
 		if measure(face, next) > width && line != "" {
 			lines = append(lines, line)
-			if len(lines) == max {
+			if len(lines) == maxLines {
 				return elide(face, lines, strings.Join(words[i:], " "), width)
 			}
 			line = word

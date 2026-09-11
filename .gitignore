@@ -1,4 +1,5 @@
 dist/
+.env
 .idea/
 **/.scratch/
 .DS_Store

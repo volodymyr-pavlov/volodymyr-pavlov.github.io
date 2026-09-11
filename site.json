@@ -3,42 +3,52 @@
   "url": "https://volodymyr-pavlov.github.io/blog",
   "tagline": "Go backends that stay small",
   "description": "Volodymyr Pavlov, a software engineer working on backend systems in Go, and writing about keeping them small.",
+  "descriptions": {
+    "blog": "Writing on Go backends: one store package, wrappers instead of layers, and a main you can read top to bottom.",
+    "about": "About Volodymyr Pavlov: a software engineer building backend systems in Go, and writing about keeping them small.",
+    "privacy": "How Volodymyr Pavlov handles visitor data: what the site and its host collect, and your rights under the GDPR."
+  },
   "locale": "en_US",
   "ga4": "",
   "author": {
     "name": "Volodymyr Pavlov",
     "jobTitle": "Lead Software Engineer",
-    "email": "volodymyr.pavlov.13@gmail.com",
     "linkedin": "https://www.linkedin.com/in/vladymyrpavlov/",
     "github": "https://github.com/grakholsky",
     "twitter": ""
   },
   "nav": [
-    [
-      "Home",
-      ""
-    ],
-    [
-      "About",
-      "about.html"
-    ],
-    [
-      "Blog",
-      "blog/"
-    ]
+    { "label": "Home", "href": "" },
+    { "label": "About", "href": "about.html" },
+    { "label": "Blog", "href": "blog/" }
   ],
-  "standalone": [
+  "listed": [
     "01-bitwise-in-go",
     "02-one-method-store-in-go",
     "03-transactions-in-go",
     "04-bitwise-store-in-go",
     "05-brewing-the-perfect-chemex"
   ],
-  "dates": {
-    "01-bitwise-in-go": "September 2026",
-    "02-one-method-store-in-go": "September 2026",
-    "03-transactions-in-go": "September 2026",
-    "04-bitwise-store-in-go": "September 2026",
-    "05-brewing-the-perfect-chemex": "2026-09-10"
-  }
+  "articles": {
+    "01-bitwise-in-go": { "date": "September 2026", "section": "Go", "schemaType": "TechArticle" },
+    "02-one-method-store-in-go": { "date": "September 2026", "section": "Go", "schemaType": "TechArticle" },
+    "03-transactions-in-go": { "date": "September 2026", "section": "Go", "schemaType": "TechArticle" },
+    "04-bitwise-store-in-go": { "date": "September 2026", "section": "Go", "schemaType": "TechArticle" },
+    "05-brewing-the-perfect-chemex": { "date": "2026-09-10", "section": "Coffee", "schemaType": "BlogPosting" }
+  },
+  "captions": [
+    {
+      "html": "AI-generated illustration (Gemini). The <a href=\"https://go.dev/blog/gopher\">Go gopher</a> was designed by Renée French and is licensed under <a href=\"https://creativecommons.org/licenses/by/4.0/\">CC BY 4.0</a>.",
+      "articles": [
+        "01-bitwise-in-go",
+        "02-one-method-store-in-go"
+      ]
+    },
+    {
+      "html": "AI-generated image (Gemini).",
+      "articles": [
+        "05-brewing-the-perfect-chemex"
+      ]
+    }
+  ]
 }

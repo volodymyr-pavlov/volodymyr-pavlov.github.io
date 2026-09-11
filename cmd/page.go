@@ -13,8 +13,8 @@ type page struct {
 	BannerTitle string
 	Description string
 	Path        string
-	Image       string
-	Photo       string // source file of a photo to use as the share image instead of a typeset banner
+	ShareImage  string // site-relative path of the Open Graph image
+	PhotoFile   string // source file of a photo to crop into the share image instead of a typeset banner
 	Type        string
 	Head        template.HTML
 	Body        template.HTML
@@ -29,70 +29,16 @@ type pageView struct {
 	Canon   string
 	ImgURL  string
 	ImgType string
-	GA4     template.HTML
+	CSP     string
+	Consent template.HTML
+	Logo    template.HTML
 	Nav     template.HTML
 	Footer  template.HTML
 }
 
-var layout = template.Must(template.New("page").Parse(`<!DOCTYPE html>
-<html lang="en">
-<head>
-<title>{{.Title}}</title>
-<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-<meta name="description" content="{{.Description}}" />
-<meta name="author" content="{{.Site.Author.Name}}" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="canonical" href="{{.Canon}}" />
-<meta property="og:site_name" content="{{.Site.Brand}}" />
-<meta property="og:type" content="{{.Type}}" />
-<meta property="og:title" content="{{.OGTitle}}" />
-<meta property="og:description" content="{{.Description}}" />
-<meta property="og:url" content="{{.Canon}}" />
-<meta property="og:locale" content="{{.Site.Locale}}" />
-<meta property="og:image" content="{{.ImgURL}}" />
-<meta property="og:image:width" content="1200" />
-<meta property="og:image:height" content="630" />
-<meta property="og:image:type" content="{{.ImgType}}" />
-<meta property="og:image:alt" content="{{.OGTitle}} — {{.Site.Brand}}" />
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="{{.OGTitle}}" />
-<meta name="twitter:description" content="{{.Description}}" />
-<meta name="twitter:image" content="{{.ImgURL}}" />
-{{with .Site.Author.Twitter}}<meta name="twitter:creator" content="{{.}}" />
-{{end}}{{.Head}}<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link href="{{.Root}}css/site.css" rel="stylesheet" type="text/css" />
-{{.JSONLD}}
-{{.GA4}}</head>
-<body>
-<div id="header">
-<a class="mark" href="{{.Home}}" aria-label="Home"><img src="{{.Root}}logo.svg" alt="" width="64" height="64"/></a>
-<div class="masthead">
-<p class="name"><a href="{{.Home}}">{{.Site.Brand}}</a></p>
-<p class="nav">
-  {{.Nav}}
-</p>
-</div>
-</div>
-
-<div id="c">
-
-{{.Body}}
-
-<div id="footer">
-{{.Footer}}
-<img class="art" src="{{.Root}}footer.svg" alt="" />
-</div>
-
-</div>
-</body>
-</html>
-`))
-
 func (b *builder) render(p page) ([]byte, error) {
 	var buf strings.Builder
-	if err := layout.Execute(&buf, b.view(p)); err != nil {
+	if err := templates.ExecuteTemplate(&buf, "layout.html", b.view(p)); err != nil {
 		return nil, err
 	}
 	return []byte(buf.String()), nil
@@ -110,11 +56,13 @@ func (b *builder) view(p page) pageView {
 		Site:    b.site,
 		Home:    homeHref(p.Root),
 		Canon:   b.site.abs(p.Path),
-		ImgURL:  b.site.abs(p.Image),
-		ImgType: imageMIME(p.Image),
-		GA4:     b.ga4,
+		ImgURL:  b.site.abs(p.ShareImage),
+		ImgType: imageMIME(p.ShareImage),
+		CSP:     contentSecurityPolicy(b.site.GA4),
+		Consent: consentScript(b.site.GA4, p.Root),
+		Logo:    b.logo,
 		Nav:     navHTML(b.site, p.Root, p.Path),
-		Footer:  b.footer,
+		Footer:  footerHTML(b.site, p.Root),
 	}
 }
 
@@ -139,6 +87,16 @@ func homeHref(root string) string {
 	return root
 }
 
+// inlineSVG turns an SVG file into markup for the page, so site.css can animate parts of the drawing.
+func inlineSVG(file string, raw []byte) (template.HTML, error) {
+	svg := strings.TrimSpace(string(raw))
+	start := strings.Index(svg, "<svg")
+	if start < 0 {
+		return "", fmt.Errorf("%s has no <svg> element", file)
+	}
+	return template.HTML(`<svg aria-hidden="true" focusable="false"` + svg[start+len("<svg"):]), nil
+}
+
 type schemaDocument struct {
 	Context string `json:"@context"`
 	Graph   []any  `json:"@graph"`
@@ -152,37 +110,56 @@ func jsonLD(graph ...any) template.HTML {
 	return template.HTML(`<script type="application/ld+json">` + string(encoded) + `</script>`)
 }
 
-func ga4Snippet(id string) template.HTML {
-	if id == "" {
+// consentScript adds the consent bar from js/consent.js, which loads Google Analytics only after the visitor allows it.
+func consentScript(ga4, root string) template.HTML {
+	if ga4 == "" {
 		return ""
 	}
-	return template.HTML(fmt.Sprintf(`<script async src="https://www.googletagmanager.com/gtag/js?id=%s"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', '%s');
-</script>
-`, id, id))
+	return snippet("consent", struct{ Src, ID, Privacy string }{
+		Src:     root + jsDir + "/" + consentFile,
+		ID:      ga4,
+		Privacy: root + privacyFile,
+	})
+}
+
+// contentSecurityPolicy lets pages load only the site's own styles, fonts and images, and no scripts.
+// With analytics on, it also allows js/consent.js and the Google hosts that gtag.js loads from and reports to.
+// Inline style attributes are blocked too, so Markdown tables must not use column alignment.
+func contentSecurityPolicy(ga4 string) string {
+	scripts, images, connect := "'none'", "'self'", "'none'"
+	if ga4 != "" {
+		scripts = "'self' https://*.googletagmanager.com"
+		images += " https://*.google-analytics.com https://*.googletagmanager.com"
+		connect = "https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com"
+	}
+	return strings.Join([]string{
+		"default-src 'none'",
+		"script-src " + scripts,
+		"style-src 'self'",
+		"font-src 'self'",
+		"img-src " + images,
+		"connect-src " + connect,
+		"base-uri 'none'",
+		"form-action 'none'",
+	}, "; ")
+}
+
+type navLink struct {
+	Label   string
+	Href    string
+	Current bool
 }
 
 func navHTML(s *site, root, path string) template.HTML {
-	links := make([]string, 0, len(s.Nav))
+	links := make([]navLink, 0, len(s.Nav))
 	for _, item := range s.Nav {
-		label, href := item[0], item[1]
-		current := ""
-		if navCovers(href, path) {
-			current = ` aria-current="page"`
+		link := navLink{Label: item.Label, Href: root + item.Href, Current: navCovers(item.Href, path)}
+		if link.Href == "" {
+			link.Href = currentDir
 		}
-
-		target := root + href
-		if target == "" {
-			target = currentDir
-		}
-		links = append(links, fmt.Sprintf(`<a href="%s" title="%s"%s>%s</a>`,
-			target, template.HTMLEscapeString(label), current, template.HTMLEscapeString(label)))
+		links = append(links, link)
 	}
-	return template.HTML(strings.Join(links, " &middot;\n  "))
+	return snippet("nav", links)
 }
 
 func navCovers(href, path string) bool {
@@ -192,13 +169,16 @@ func navCovers(href, path string) bool {
 	return strings.HasPrefix(path, href)
 }
 
-func footerHTML(s *site) template.HTML {
-	var links []string
-	if s.Author.LinkedIn != "" {
-		links = append(links, fmt.Sprintf(`<a rel="me author" href="%s">LinkedIn</a>`, s.Author.LinkedIn))
-	}
-	if s.Author.GitHub != "" {
-		links = append(links, fmt.Sprintf(`<a rel="me" href="%s">GitHub</a>`, s.Author.GitHub))
-	}
-	return template.HTML("<p>\n" + strings.Join(links, " &middot; ") + "\n</p>")
+func footerHTML(s *site, root string) template.HTML {
+	return snippet("footer", struct {
+		LinkedIn  string
+		GitHub    string
+		Privacy   string
+		Analytics bool
+	}{
+		LinkedIn:  s.Author.LinkedIn,
+		GitHub:    s.Author.GitHub,
+		Privacy:   root + privacyFile,
+		Analytics: s.GA4 != "",
+	})
 }

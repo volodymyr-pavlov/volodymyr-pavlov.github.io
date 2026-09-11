@@ -1,22 +1,37 @@
 package main
 
 const (
-	blogDir     = "blog"
-	bannerDir   = "og"
-	cssDir      = "css"
-	picturesDir = "pictures"
-	pictureExt  = ".jpeg"
+	blogDir       = "blog"
+	shareImageDir = "og"
+	cssDir        = "css"
+	jsDir         = "js"
+	photosDir     = "pictures"
+	photoExt      = ".jpeg"
 
-	indexFile  = "index.html"
-	aboutFile  = "about.html"
-	logoFile   = "logo.svg"
-	footerFile = "footer.svg"
+	homeSource    = "index.md"
+	aboutSource   = "about.md"
+	privacySource = "privacy.md"
 
-	blogTitle   = "Blog"
-	aboutPrefix = "About "
+	indexFile   = "index.html"
+	aboutFile   = "about.html"
+	privacyFile = "privacy.html"
+	logoFile    = "logo.svg"
+	consentFile = "consent.js"
 
-	rootPlaceholder = "{{root}}"
-	blogPlaceholder = "{{BLOG}}"
+	blogTitle    = "Blog"
+	aboutTitle   = "About"
+	privacyTitle = "Privacy"
+
+	rootPlaceholder   = "{{root}}"
+	blogPlaceholder   = "{{BLOG}}"
+	authorPlaceholder = "{{author}}"
+	emailPlaceholder  = "{{email}}"
+
+	// authorEmailEnv holds the author's email, kept out of site.json so the repository does not publish it.
+	authorEmailEnv = "AUTHOR_EMAIL"
+
+	// consentResetAttr marks elements that withdraw analytics consent; templates/page.html writes it and js/consent.js reads it.
+	consentResetAttr = "data-consent-reset"
 
 	parentDir      = "../"
 	currentDir     = "./"
@@ -28,8 +43,9 @@ const (
 
 	descriptionLimit = 165
 
-	defaultLocale   = "en_US"
-	contentLanguage = "en"
+	defaultLocale      = "en_US"
+	defaultArticleType = "BlogPosting"
+	contentLanguage    = "en"
 
 	dirPerm  = 0o755
 	filePerm = 0o644

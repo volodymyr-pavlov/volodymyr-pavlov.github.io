@@ -36,8 +36,25 @@ func TestHomeHref(t *testing.T) {
 	}
 }
 
+func TestInlineSVGDropsThePrologAndHidesTheDrawing(t *testing.T) {
+	raw := "<?xml version=\"1.0\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\">\n<svg viewBox=\"0 0 1 1\"><path d=\"M0 0\"/></svg>\n"
+	got, err := inlineSVG("logo.svg", []byte(raw))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := `<svg aria-hidden="true" focusable="false" viewBox="0 0 1 1"><path d="M0 0"/></svg>`; string(got) != want {
+		t.Errorf("inlineSVG() = %q, want %q", got, want)
+	}
+}
+
+func TestInlineSVGRejectsAFileWithoutSVG(t *testing.T) {
+	if _, err := inlineSVG("logo.svg", []byte("<html></html>")); err == nil {
+		t.Error("inlineSVG() accepted a file without an <svg> element")
+	}
+}
+
 func TestNavHTMLMarksExactlyOneCurrentPage(t *testing.T) {
-	s := &site{Nav: [][2]string{{"Home", ""}, {"About", "about.html"}, {"Blog", "blog/"}}}
+	s := &site{Nav: []navItem{{"Home", ""}, {"About", "about.html"}, {"Blog", "blog/"}}}
 	nav := string(navHTML(s, "../", "blog/bitwise-flags-in-go.html"))
 
 	if got := strings.Count(nav, `aria-current="page"`); got != 1 {
@@ -52,7 +69,7 @@ func TestNavHTMLMarksExactlyOneCurrentPage(t *testing.T) {
 }
 
 func TestNavHTMLEscapesLabels(t *testing.T) {
-	s := &site{Nav: [][2]string{{`Notes & "asides"`, "notes.html"}}}
+	s := &site{Nav: []navItem{{`Notes & "asides"`, "notes.html"}}}
 	nav := string(navHTML(s, "", "index.html"))
 
 	if strings.Contains(nav, `"asides"`) || !strings.Contains(nav, "&amp;") {
@@ -66,83 +83,95 @@ func TestJSONLDCannotCloseTheScriptTag(t *testing.T) {
 	if strings.Count(got, "</script>") != 1 {
 		t.Errorf("payload closed the tag early: %s", got)
 	}
-	if !strings.Contains(got, `\u003c`) {
+	if strings.Contains(got, "<script>alert") {
 		t.Errorf("angle brackets were not escaped: %s", got)
 	}
 }
 
-func TestGA4SnippetIsEmptyWithoutAnID(t *testing.T) {
-	if got := ga4Snippet(""); got != "" {
-		t.Errorf("ga4Snippet(\"\") = %q, want empty", got)
-	}
-	if got := string(ga4Snippet("G-ABC123")); !strings.Contains(got, "G-ABC123") {
-		t.Errorf("ga4Snippet() did not carry the id: %s", got)
+func TestConsentScriptIsEmptyWithoutAnID(t *testing.T) {
+	if got := consentScript("", "../"); got != "" {
+		t.Errorf("consentScript(\"\", \"../\") = %q, want empty", got)
 	}
 }
 
-func TestOutputPath(t *testing.T) {
-	cases := map[string]string{
-		"":                              "index.html",
-		"blog/":                         "blog/index.html",
-		"about.html":                    "about.html",
-		"blog/bitwise-flags-in-go.html": "blog/bitwise-flags-in-go.html",
-	}
-	for path, want := range cases {
-		if got := outputPath(path); got != want {
-			t.Errorf("outputPath(%q) = %q, want %q", path, got, want)
-		}
-	}
-}
-
-func TestByYear(t *testing.T) {
-	groups := byYear([]article{
-		{Name: "a", Published: "2026-09-01"},
-		{Name: "b", Published: "2026-03-01"},
-		{Name: "c", Published: "2025-12-01"},
-		{Name: "d"},
-	})
-	if len(groups) != 3 {
-		t.Fatalf("got %d groups, want 3", len(groups))
-	}
-	if groups[0].Year != "2026" || len(groups[0].Articles) != 2 {
-		t.Errorf("first group = %+v", groups[0])
-	}
-	if groups[1].Year != "2025" || groups[1].Articles[0].Name != "c" {
-		t.Errorf("second group = %+v", groups[1])
-	}
-	if groups[2].Year != "Undated" {
-		t.Errorf("third group year = %q", groups[2].Year)
-	}
-}
-
-func TestEntryHTMLEscapesTitles(t *testing.T) {
-	got := entryHTML("x.html", `Store & "Flags"`)
-	want := `<p class="entry"><a href="x.html">Store &amp; &#34;Flags&#34;</a></p>`
+func TestConsentScriptPassesIDAndPrivacyLink(t *testing.T) {
+	got := string(consentScript("G-ABC123", "../"))
+	want := `<script src="../js/consent.js" data-ga4="G-ABC123" data-privacy="../privacy.html" defer></script>` + "\n"
 	if got != want {
-		t.Errorf("entryHTML() = %s, want %s", got, want)
+		t.Errorf("consentScript() = %s, want %s", got, want)
 	}
 }
 
-func TestArticleIndexHTMLGroupsByYear(t *testing.T) {
-	got := string(articleIndexHTML([]article{
-		{Name: "a", Title: "A", Published: "2026-09-01"},
-		{Name: "b", Title: "B", Published: "2025-01-01"},
-	}))
-	wantOrder := []string{"<h2>2026</h2>", `href="a.html"`, "<h2>2025</h2>", `href="b.html"`}
-	last := -1
-	for _, piece := range wantOrder {
-		at := strings.Index(got, piece)
-		if at <= last {
-			t.Fatalf("%q out of place in:\n%s", piece, got)
+func TestConsentScriptRequestsNothingFromGoogle(t *testing.T) {
+	if got := string(consentScript("G-ABC123", "")); strings.Contains(got, "googletagmanager") {
+		t.Errorf("the page loads Google Analytics before consent: %s", got)
+	}
+}
+
+func TestContentSecurityPolicyAllowsOnlyTheSiteWithoutAnalytics(t *testing.T) {
+	got := contentSecurityPolicy("")
+	for _, want := range []string{"default-src 'none'", "script-src 'none'", "style-src 'self'", "img-src 'self';", "base-uri 'none'"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("contentSecurityPolicy(\"\") = %q, missing %q", got, want)
 		}
-		last = at
+	}
+	if strings.Contains(got, "google") {
+		t.Errorf("contentSecurityPolicy(\"\") allows Google without analytics: %q", got)
 	}
 }
 
-func TestWritingListHTMLLinksByPath(t *testing.T) {
-	got := string(blogListHTML([]article{{Path: "blog/a.html", Title: "A"}, {Path: "blog/b.html", Title: "B"}}))
-	if strings.Count(got, `class="entry"`) != 2 || !strings.Contains(got, `href="blog/b.html"`) {
-		t.Errorf("blogListHTML() = %s", got)
+func TestContentSecurityPolicyAllowsGoogleAnalyticsWhenOn(t *testing.T) {
+	got := contentSecurityPolicy("G-ABC123")
+	for _, want := range []string{"script-src 'self' https://*.googletagmanager.com", "https://*.google-analytics.com"} {
+		if !strings.Contains(got, want) {
+			t.Errorf("contentSecurityPolicy() = %q, missing %q", got, want)
+		}
+	}
+}
+
+func TestLayoutSetsThePolicyBeforeAnyResource(t *testing.T) {
+	b := &builder{site: &site{URL: "https://x.test"}}
+	html, err := b.render(page{Title: "T"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	policy, resource := strings.Index(string(html), `http-equiv="Content-Security-Policy"`), strings.Index(string(html), "<link")
+	if policy < 0 || policy > resource {
+		t.Errorf("policy meta at %d, first <link at %d: %s", policy, resource, html)
+	}
+}
+
+func TestFooterHTMLLinksPrivacyFromRoot(t *testing.T) {
+	if got := string(footerHTML(&site{}, "../")); !strings.Contains(got, `<a href="../privacy.html">Privacy</a>`) {
+		t.Errorf("footerHTML() has no privacy link from the root: %s", got)
+	}
+}
+
+func TestFooterHTMLSeparatesEveryLink(t *testing.T) {
+	s := &site{GA4: "G-ABC123", Author: author{LinkedIn: "https://l.test/", GitHub: "https://g.test/"}}
+	want := "<p>\n<a rel=\"me author\" href=\"https://l.test/\">LinkedIn</a> &middot; <a rel=\"me\" href=\"https://g.test/\">GitHub</a> &middot; " +
+		"<a href=\"privacy.html\">Privacy</a> &middot; <a href=\"#\" " + consentResetAttr + ">Analytics choice</a>\n</p>"
+	if got := string(footerHTML(s, "")); got != want {
+		t.Errorf("footerHTML() =\n%s\nwant\n%s", got, want)
+	}
+}
+
+func TestFooterHTMLEscapesProfileLinks(t *testing.T) {
+	got := string(footerHTML(&site{Author: author{GitHub: `https://x.test/"onmouseover="x`}}, ""))
+	if strings.Contains(got, `"onmouseover`) {
+		t.Errorf("profile link broke out of href: %s", got)
+	}
+}
+
+func TestFooterHTMLOffersNoConsentResetWithoutAnalytics(t *testing.T) {
+	if got := string(footerHTML(&site{}, "")); strings.Contains(got, consentResetAttr) {
+		t.Errorf("footerHTML() without analytics offers a consent reset: %s", got)
+	}
+}
+
+func TestFooterHTMLOffersConsentResetWithAnalytics(t *testing.T) {
+	if got := string(footerHTML(&site{GA4: "G-ABC123"}, "")); !strings.Contains(got, consentResetAttr) {
+		t.Errorf("footerHTML() with analytics has no way to withdraw consent: %s", got)
 	}
 }
 
@@ -150,6 +179,9 @@ func TestBannerTitleFallsBackToOGTitle(t *testing.T) {
 	if got := (page{OGTitle: "og"}).bannerTitle(); got != "og" {
 		t.Errorf("bannerTitle() = %q, want og", got)
 	}
+}
+
+func TestBannerTitlePrefersTheBannerTitle(t *testing.T) {
 	if got := (page{OGTitle: "og", BannerTitle: "banner"}).bannerTitle(); got != "banner" {
 		t.Errorf("bannerTitle() = %q, want banner", got)
 	}

@@ -14,7 +14,6 @@ type schemaPerson struct {
 	ID       string   `json:"@id"`
 	Name     string   `json:"name"`
 	JobTitle string   `json:"jobTitle,omitempty"`
-	Email    string   `json:"email,omitempty"`
 	URL      string   `json:"url"`
 	SameAs   []string `json:"sameAs,omitempty"`
 }
@@ -49,24 +48,23 @@ type schemaArticleSummary struct {
 	URL      string `json:"url"`
 }
 
-type schemaCollectionPage struct {
-	Type        string                 `json:"@type"`
-	ID          string                 `json:"@id"`
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	URL         string                 `json:"url"`
-	IsPartOf    schemaRef              `json:"isPartOf"`
-	HasPart     []schemaArticleSummary `json:"hasPart"`
-}
-
-type schemaAboutPage struct {
+type schemaWebPage struct {
 	Type        string    `json:"@type"`
 	ID          string    `json:"@id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	URL         string    `json:"url"`
-	MainEntity  schemaRef `json:"mainEntity"`
 	IsPartOf    schemaRef `json:"isPartOf"`
+}
+
+type schemaCollectionPage struct {
+	schemaWebPage
+	HasPart []schemaArticleSummary `json:"hasPart"`
+}
+
+type schemaAboutPage struct {
+	schemaWebPage
+	MainEntity schemaRef `json:"mainEntity"`
 }
 
 type schemaWebSite struct {

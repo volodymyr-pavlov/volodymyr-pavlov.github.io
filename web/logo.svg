@@ -5,7 +5,8 @@
  width="1200.000000pt" height="1200.000000pt" viewBox="0 0 1200.000000 1200.000000"
  preserveAspectRatio="xMidYMid meet">
 
-<g transform="translate(0.000000,1200.000000) scale(0.100000,-0.100000)"
+<defs>
+<g id="elephant" transform="translate(0.000000,1200.000000) scale(0.100000,-0.100000)"
 fill="#000000" stroke="none">
 <path d="M2695 10403 c-526 -64 -981 -284 -1419 -687 -334 -307 -602 -762
 -685 -1161 -88 -425 -32 -838 164 -1212 116 -220 217 -359 514 -708 367 -429
@@ -96,4 +97,10 @@ m3611 -298 c334 -38 662 -145 947 -306 230 -131 387 -251 552 -420 205 -210
 -28 94 -24 199 20 93 38 98 39 215 39 116 0 123 -1 211 -38 103 -42 145 -46
 192 -17 50 31 74 76 69 133 -5 63 -32 90 -133 138 -163 78 -364 100 -521 59z"/>
 </g>
+<!-- The trunk's curl is cut out along x=790, where both of its lines run level, so it can swing about 790,943. -->
+<clipPath id="elephant-body"><path clip-rule="evenodd" d="M0 0H1200V1200H0Z M790 860H830V745H1020V1014H790Z"/></clipPath>
+<clipPath id="elephant-trunk"><path d="M770 860H830V745H1020V1014H770Z"/></clipPath>
+</defs>
+<use href="#elephant" clip-path="url(#elephant-body)"/>
+<g class="trunk"><use href="#elephant" clip-path="url(#elephant-trunk)"/></g>
 </svg>

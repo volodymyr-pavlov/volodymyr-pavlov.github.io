@@ -1,0 +1,13 @@
+{{define "consent"}}<script src="{{.Src}}" data-ga4="{{.ID}}" data-privacy="{{.Privacy}}" defer></script>
+{{end}}
+
+{{define "nav"}}{{range $i, $link := .}}{{if $i}} &middot;
+  {{end}}<a href="{{.Href}}" title="{{.Label}}"{{if .Current}} aria-current="page"{{end}}>{{.Label}}</a>{{end}}{{end}}
+
+{{/* data-consent-reset is consentResetAttr in names.go, the name js/consent.js looks for. */}}
+{{define "footer"}}<p>
+{{with .LinkedIn}}<a rel="me author" href="{{.}}">LinkedIn</a> &middot; {{end}}
+{{- with .GitHub}}<a rel="me" href="{{.}}">GitHub</a> &middot; {{end -}}
+<a href="{{.Privacy}}">Privacy</a>
+{{- if .Analytics}} &middot; <a href="#" data-consent-reset>Analytics choice</a>{{end}}
+</p>{{end}}
