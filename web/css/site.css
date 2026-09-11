@@ -1,0 +1,187 @@
+:root {
+	--sans: "Raleway", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--mono: "Inconsolata", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+	--primary: #228b22;
+}
+
+body {
+	margin: 0;
+	border-top: 4px solid var(--primary);
+	font-size: 15px;
+	font-family: var(--sans);
+	font-weight: 500;
+	line-height: 1.6;
+	background-color: #fff;
+	color: #000;
+}
+
+div#c {
+	min-width: 25em;
+	max-width: 50em;
+	margin: 0 auto 132px auto;
+	padding: 0 16px;
+}
+
+a:link, a:visited {
+	position: relative;
+	text-decoration: none;
+	color: #000;
+}
+
+a::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -0.12em;
+	height: 1px;
+	background-color: var(--primary);
+	transform: scaleX(0);
+	transform-origin: left center;
+	transition: transform 0.18s ease-out;
+}
+
+a:hover::after,
+a:focus-visible::after {
+	transform: scaleX(1);
+}
+
+div#c a {
+	text-decoration: none;
+	background-image:
+		linear-gradient(var(--primary), var(--primary)),
+		linear-gradient(#bbb, #bbb);
+	background-size: 0 1px, 100% 1px;
+	background-position: 0 100%, 0 100%;
+	background-repeat: no-repeat;
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+	transition: background-size 0.18s ease-out;
+}
+
+div#c a:hover,
+div#c a:focus-visible { background-size: 100% 1px, 100% 1px; }
+
+div#c a::after { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+	a::after, div#c a { transition: none; }
+}
+
+div#header {
+	min-width: 25em;
+	max-width: 50em;
+	margin: 16px auto 44px auto;
+	padding: 0 16px;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+div#header p { margin: 0; }
+div#header p.nav { font-size: 16px; font-weight: 600; }
+div#header p.nav a { margin: 0; }
+
+div#header p.name {
+	font-family: var(--mono);
+	font-size: 16px;
+	line-height: 1.35;
+}
+
+div#header p.name a { border-bottom: none; }
+
+a.mark { border-bottom: none; display: block; flex: none; }
+a.mark::after { display: none; }
+a.mark img { display: block; height: 3.7em; width: auto; margin: 0; }
+
+div#header a[aria-current="page"]::after { transform: scaleX(1); }
+
+img { margin: 12px 0 0 0; max-width: 100%; }
+
+p, ul, ol { margin: 0 0 24px 0; }
+li > ul, li > ol { margin-bottom: 0; }
+
+pre {
+	font-family: var(--mono);
+	font-size: 15px;
+	line-height: 1.3em;
+	margin: 0 0 24px 0;
+	padding: 12px 0;
+	border-top: solid 1px #ddd;
+	border-bottom: solid 1px #ddd;
+	overflow-x: auto;
+}
+
+code { font-family: var(--mono); font-size: 15px; background-color: #eee; }
+pre > code { background-color: inherit; }
+
+h1, h2 {
+	font-family: var(--sans);
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+h1 { font-size: 32px; font-weight: 700; margin: 0 0 14px 0; }
+
+h2 {
+	font-size: 18px;
+	line-height: 32px;
+	margin: 44px 0 22px 0;
+}
+
+h3, h4, h5, h6 { font-family: var(--sans); font-weight: 600; line-height: 1.2; margin: 44px 0 12px 0; }
+h3 { font-size: 15px; font-weight: 700; }
+h4 { font-size: 15px; }
+
+h2 a, h3 a { background-image: none; }
+
+th, td { padding: 0 16px; }
+
+p.date { font-size: 13px; color: #666; margin: 0 0 44px 0; }
+
+p.entry { margin: 0 0 12px 0; }
+
+img.feature {
+	display: block;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	margin: 0 0 44px 0;
+	border-radius: 3px;
+}
+
+
+a.icon {
+	border-bottom: none;
+	display: inline-flex;
+	align-items: center;
+	line-height: 1;
+	vertical-align: -0.18em;
+}
+
+a.icon { background-image: none; }
+a.icon::after { display: none; }
+a.icon svg { width: 1.15em; height: 1.15em; fill: currentColor; }
+a.icon:hover svg, a.icon:focus-visible svg { fill: #555; }
+
+@media (max-width: 32em) {
+	p.entry { grid-template-columns: 1fr; gap: 0; margin-bottom: 12px; }
+}
+
+@media print { div#header { display: none; } }
+
+div#footer {
+	margin-top: 88px;
+	padding-top: 8px;
+	border-top: 1px solid #ddd;
+	font-size: 13px;
+	color: #555;
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+div#footer p { margin: 0; }
+div#footer a { color: #555; }
+div#footer img.art { display: block; height: 3em; width: auto; margin: 0; }

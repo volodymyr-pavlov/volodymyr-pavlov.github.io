@@ -1,0 +1,44 @@
+{
+  "brand": "Volodymyr Pavlov",
+  "url": "https://volodymyr-pavlov.github.io/blog",
+  "tagline": "Go backends that stay small",
+  "description": "Volodymyr Pavlov, a software engineer working on backend systems in Go, and writing about keeping them small.",
+  "locale": "en_US",
+  "ga4": "",
+  "author": {
+    "name": "Volodymyr Pavlov",
+    "jobTitle": "Lead Software Engineer",
+    "email": "volodymyr.pavlov.13@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/vladymyrpavlov/",
+    "github": "https://github.com/grakholsky",
+    "twitter": ""
+  },
+  "nav": [
+    [
+      "Home",
+      ""
+    ],
+    [
+      "About",
+      "about.html"
+    ],
+    [
+      "Blog",
+      "blog/"
+    ]
+  ],
+  "standalone": [
+    "01-bitwise-in-go",
+    "02-one-method-store-in-go",
+    "03-transactions-in-go",
+    "04-bitwise-store-in-go",
+    "05-brewing-the-perfect-chemex"
+  ],
+  "dates": {
+    "01-bitwise-in-go": "September 2026",
+    "02-one-method-store-in-go": "September 2026",
+    "03-transactions-in-go": "September 2026",
+    "04-bitwise-store-in-go": "September 2026",
+    "05-brewing-the-perfect-chemex": "2026-09-10"
+  }
+}
