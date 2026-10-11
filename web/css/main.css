@@ -217,7 +217,6 @@ a:focus-visible::after {
 }
 
 #header .nav a {
-    margin: 0;
     text-underline-offset: 4px;
 }
 
@@ -249,7 +248,7 @@ a:focus-visible::after {
 img {
     margin: 1.5rem 0 0 0;
     max-width: 100%;
-    border-radius: 1rem;
+    border-radius: 0.75rem;
 }
 
 p {
@@ -395,10 +394,6 @@ h4 {
     line-height: 1.75rem;
 }
 
-#content h2 a, #content h3 a {
-    background-image: none;
-}
-
 .date {
     font-size: var(--text-small);
     color: var(--muted);
@@ -414,15 +409,12 @@ h4 {
 .card .entry {
     margin: 0;
     padding: 0;
-    background: none;
-    border: none;
-    transform: none;
 }
 
 .summary {
     font-size: var(--text-base);
     color: var(--muted);
-    margin: -8px 0 20px 0;
+    margin: 0;
 }
 
 /* The title link stretches over the whole card, so a click anywhere on it opens the article. */
@@ -449,16 +441,11 @@ h4 {
     transition: none;
 }
 
-.card .summary {
-    margin: 0;
-}
-
 .feature {
     display: block;
     width: 100%;
     height: auto;
     margin: 0 0 var(--space-section) 0;
-    border-radius: 0.75rem;
 }
 
 #footer {
@@ -510,7 +497,7 @@ h4 {
 }
 
 /* An article ends with links to the older and newer articles. */
-.neighbours {
+.post-nav {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
@@ -519,20 +506,20 @@ h4 {
     border-top: 1px solid var(--link-rule);
 }
 
-#content .neighbours a {
+#content .post-nav a {
     display: block;
     background-image: none;
     font-weight: 500;
     line-height: 1.5rem;
 }
 
-#content .neighbours a:hover,
-#content .neighbours a:focus-visible {
+#content .post-nav a:hover,
+#content .post-nav a:focus-visible {
     text-decoration: underline;
     text-underline-offset: 4px;
 }
 
-.neighbours span {
+.post-nav .label {
     display: block;
     font-size: var(--text-small);
     font-weight: 400;
@@ -544,14 +531,16 @@ h4 {
     text-align: right;
 }
 
-@media (max-width: 30em) {
-    .neighbours {
-        grid-template-columns: 1fr;
+/* A phone screen is too narrow for the titles, so only the labels stay and become the links. */
+@media (max-width: 32em) {
+    .post-nav .title {
+        display: none;
     }
 
-    .newer {
-        grid-column: 1;
-        text-align: left;
+    .post-nav .label {
+        font-size: inherit;
+        font-weight: inherit;
+        color: inherit;
     }
 }
 
@@ -702,8 +691,6 @@ h4 {
     gap: 8px 12px;
     font-size: var(--text-small);
     background-color: var(--bg);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
     border: 1px solid #e5e5e5;
     border-radius: 0.75rem;
 }
@@ -739,7 +726,7 @@ h4 {
     }
 }
 
-/* Last, so it overrides the display of the elements above. */
+/* Last, so it overrides the display the header and the consent bar set above. */
 @media print {
     #header, #consent {
         display: none;

@@ -164,14 +164,14 @@ func TestArticleHTMLLinksTheNeighboursAfterTheBody(t *testing.T) {
 	a := article{Older: &articleLink{"A", "a.html"}, Newer: &articleLink{"C", "c.html"}}
 	got := string(articleHTML(a, rendered))
 	for _, want := range []string{
-		`<a class="older" rel="prev" href="a.html"><span>Older</span>A</a>`,
-		`<a class="newer" rel="next" href="c.html"><span>Newer</span>C</a>`,
+		`<a class="older" rel="prev" href="a.html"><span class="label">Older</span><span class="title">A</span></a>`,
+		`<a class="newer" rel="next" href="c.html"><span class="label">Newer</span><span class="title">C</span></a>`,
 	} {
 		if !strings.Contains(got, want) {
 			t.Errorf("articleHTML() = %q, want it to contain %q", got, want)
 		}
 	}
-	if strings.Index(got, "<p>Body</p>") > strings.Index(got, `<nav class="neighbours"`) {
+	if strings.Index(got, "<p>Body</p>") > strings.Index(got, `<nav class="post-nav"`) {
 		t.Errorf("articleHTML() = %q, want the links after the body", got)
 	}
 }

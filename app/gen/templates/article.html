@@ -4,11 +4,11 @@
 <figcaption>{{.Caption}}</figcaption>
 </figure>
 {{else}}{{template "photo" .}}
-{{end}}{{end}}{{.Body}}{{if or .Older .Newer}}{{template "neighbours" .}}{{end}}{{end}}
+{{end}}{{end}}{{.Body}}{{if or .Older .Newer}}{{template "post-nav" .}}{{end}}{{end}}
 
-{{define "neighbours"}}<nav class="neighbours" aria-label="More articles">
-{{with .Older}}<a class="older" rel="prev" href="{{.File}}"><span>Older</span>{{.Title}}</a>
-{{end}}{{with .Newer}}<a class="newer" rel="next" href="{{.File}}"><span>Newer</span>{{.Title}}</a>
+{{define "post-nav"}}<nav class="post-nav" aria-label="More articles">
+{{with .Older}}<a class="older" rel="prev" href="{{.File}}"><span class="label">Older</span><span class="title">{{.Title}}</span></a>
+{{end}}{{with .Newer}}<a class="newer" rel="next" href="{{.File}}"><span class="label">Newer</span><span class="title">{{.Title}}</span></a>
 {{end}}</nav>
 {{end}}
 
