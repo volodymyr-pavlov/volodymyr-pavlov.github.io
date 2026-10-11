@@ -142,6 +142,40 @@ func TestArticleHTMLPutsTheDatelineUnderTheHeading(t *testing.T) {
 	}
 }
 
+func TestLinkNeighboursFollowsTheListedOrder(t *testing.T) {
+	articles := []article{{Name: "a", Title: "A"}, {Name: "b", Title: "B"}, {Name: "c", Title: "C"}, {Name: "d", Title: "D"}}
+	linkNeighbours(articles, []article{articles[2], articles[0], articles[1]})
+
+	if articles[3].Older != nil || articles[3].Newer != nil {
+		t.Errorf("linkNeighbours() linked the unlisted d: %+v", articles[3])
+	}
+	if c := articles[2]; c.Newer != nil || c.Older == nil || c.Older.File != "a.html" {
+		t.Errorf("linkNeighbours() linked the newest c to %+v and %+v", c.Newer, c.Older)
+	}
+	if a := articles[0]; a.Newer == nil || a.Newer.Title != "C" || a.Older == nil || a.Older.Title != "B" {
+		t.Errorf("linkNeighbours() linked a to %+v and %+v", a.Newer, a.Older)
+	}
+	if b := articles[1]; b.Newer == nil || b.Newer.File != "a.html" || b.Older != nil {
+		t.Errorf("linkNeighbours() linked the oldest b to %+v and %+v", b.Newer, b.Older)
+	}
+}
+
+func TestArticleHTMLLinksTheNeighboursAfterTheBody(t *testing.T) {
+	a := article{Older: &articleLink{"A", "a.html"}, Newer: &articleLink{"C", "c.html"}}
+	got := string(articleHTML(a, rendered))
+	for _, want := range []string{
+		`<a class="older" rel="prev" href="a.html"><span>Older</span>A</a>`,
+		`<a class="newer" rel="next" href="c.html"><span>Newer</span>C</a>`,
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("articleHTML() = %q, want it to contain %q", got, want)
+		}
+	}
+	if strings.Index(got, "<p>Body</p>") > strings.Index(got, `<nav class="neighbours"`) {
+		t.Errorf("articleHTML() = %q, want the links after the body", got)
+	}
+}
+
 func TestArticleHTMLLeavesOutAnEmptyDateline(t *testing.T) {
 	if got := articleHTML(article{}, rendered); string(got) != "<h1>T</h1>\n<p>Body</p>\n" {
 		t.Errorf("articleHTML() = %q, want only the heading and body", got)

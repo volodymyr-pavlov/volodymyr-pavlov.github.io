@@ -509,6 +509,52 @@ h4 {
     cursor: pointer;
 }
 
+/* An article ends with links to the older and newer articles. */
+.neighbours {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: var(--space-section) 0 0 0;
+    padding: var(--space-section) 0 0 0;
+    border-top: 1px solid var(--link-rule);
+}
+
+#content .neighbours a {
+    display: block;
+    background-image: none;
+    font-weight: 500;
+    line-height: 1.5rem;
+}
+
+#content .neighbours a:hover,
+#content .neighbours a:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.neighbours span {
+    display: block;
+    font-size: var(--text-small);
+    font-weight: 400;
+    color: var(--muted);
+}
+
+.newer {
+    grid-column: 2;
+    text-align: right;
+}
+
+@media (max-width: 30em) {
+    .neighbours {
+        grid-template-columns: 1fr;
+    }
+
+    .newer {
+        grid-column: 1;
+        text-align: left;
+    }
+}
+
 .feature-figure {
     margin: 0 0 var(--space-section) 0;
 }

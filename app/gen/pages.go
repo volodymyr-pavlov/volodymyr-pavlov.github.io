@@ -47,6 +47,7 @@ func (b *builder) buildPages(articles []article) ([]page, error) {
 	if err != nil {
 		return nil, err
 	}
+	linkNeighbours(articles, listed)
 	var pages pageList
 	for _, a := range articles {
 		pages.add(func() (page, error) { return b.articlePage(a) })

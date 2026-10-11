@@ -43,6 +43,33 @@ type article struct {
 	PhotoAlt string
 	// Caption is shown under the feature photo, "" for none.
 	Caption template.HTML
+	// Older and Newer are the articles on either side of this one in the listed order, nil at the ends and for an
+	// article that is not listed.
+	Older *articleLink
+	Newer *articleLink
+}
+
+// articleLink is an article as the older and newer links at the end of another article show it.
+type articleLink struct {
+	Title string
+	// File is the article's HTML file name, which is its href from any article.
+	File string
+}
+
+// linkNeighbours fills Older and Newer on every listed article from the order of listed, which runs newest first.
+func linkNeighbours(articles []article, listed []article) {
+	byName := make(map[string]*article, len(articles))
+	for i := range articles {
+		byName[articles[i].Name] = &articles[i]
+	}
+	for i, a := range listed {
+		if i > 0 {
+			byName[a.Name].Newer = &articleLink{Title: listed[i-1].Title, File: listed[i-1].File()}
+		}
+		if i+1 < len(listed) {
+			byName[a.Name].Older = &articleLink{Title: listed[i+1].Title, File: listed[i+1].File()}
+		}
+	}
 }
 
 // File is the article's HTML file name, which is also its href from the blog index.
@@ -200,11 +227,14 @@ type articleView struct {
 	DisplayDate string
 	ISODate     string
 	Photo       *photoView
+	Older       *articleLink
+	Newer       *articleLink
 }
 
-// articleHTML lays out an article: the heading, its dateline, the feature photo, then the body.
+// articleHTML lays out an article: the heading, its dateline, the feature photo, the body, then the links to the older
+// and newer articles.
 func articleHTML(a article, r renderedArticle) template.HTML {
-	view := articleView{renderedArticle: r, DisplayDate: a.DisplayDate, ISODate: a.ISODate}
+	view := articleView{renderedArticle: r, DisplayDate: a.DisplayDate, ISODate: a.ISODate, Older: a.Older, Newer: a.Newer}
 	if a.Photo != "" {
 		view.Photo = &photoView{Src: relativeRoot(a.Path) + a.Photo, Alt: a.photoAlt(), Caption: a.Caption}
 	}
@@ -212,15 +242,20 @@ func articleHTML(a article, r renderedArticle) template.HTML {
 }
 
 // articleHeadView is what the article-head template shows.
-type articleHeadView struct{ ISODate, ISOModified, Author, Section string }
+type articleHeadView struct {
+	ISODate, ISOModified, Author, Section string
+	Older, Newer                          *articleLink
+}
 
-// articleHead is the article:* meta tags of an article.
+// articleHead is the article:* meta tags of an article, and the prev and next links to its neighbours.
 func (b *builder) articleHead(a article) template.HTML {
 	return snippet(articleHeadSnippet, articleHeadView{
 		ISODate:     a.ISODate,
 		ISOModified: a.ISOModified,
 		Author:      b.site.Author.LinkedIn,
 		Section:     a.Section,
+		Older:       a.Older,
+		Newer:       a.Newer,
 	})
 }
 

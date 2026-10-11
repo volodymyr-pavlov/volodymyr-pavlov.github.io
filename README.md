@@ -71,7 +71,8 @@ their metadata.
 1. Add a Markdown file to `blog/`. The first `# heading` is the title. The first paragraph is the summary unless
    `site.json` gives a description.
 2. In `site.json`, add the file name without `.md` to `listed`, and an entry under `articles` with `date`, `section`,
-   `schemaType` and `description`. The six newest listed articles also appear on the home page.
+   `schemaType` and `description`. The six newest listed articles also appear on the home page, and every listed
+   article ends with links to the ones before and after it in that order.
 3. Optionally, put a `.jpeg` or `.png` with the same name into `web/images/`. It becomes the article's feature photo
    and its share image. Give it a `photoAlt` in the article entry, and a credit under `captions` if it needs one.
 4. `make serve` and read it.
