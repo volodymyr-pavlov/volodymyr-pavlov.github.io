@@ -1,0 +1,96 @@
+# On every push to main: checks the site, builds it and deploys it to GitHub Pages. Then semantic-release writes
+# CHANGELOG.md, tags the version and creates the GitHub Release.
+# The release job uses the workflow's own GITHUB_TOKEN. GitHub Pages must be set to deploy from GitHub Actions.
+# Actions are pinned by commit; the tag in the comment is what the commit resolved to when it was last updated.
+# To update: git ls-remote --tags https://github.com/<action> refs/tags/<tag>, then replace the commit and tag together.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+# One run at a time, so a deploy never overtakes the one before it. Nothing is cancelled: a release half-way through
+# would leave a tag without its CHANGELOG commit.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: 24.18.0
+
+jobs:
+  check:
+    # The release job commits CHANGELOG.md as "chore(release): X.Y.Z". That commit changes nothing on the site, so it
+    # needs no run.
+    if: ${{ !startsWith(github.event.head_commit.message, 'chore(release):') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: make check
+
+  build:
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: make build
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: .dist
+
+  pages:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+  # Runs semantic-release after the deploy. It reads the commit messages since the last tag. If one of them is a feat or
+  # a fix, it writes the notes into CHANGELOG.md, commits that file as "chore(release): X.Y.Z", pushes the vX.Y.Z tag
+  # and creates the GitHub Release. A push made with GITHUB_TOKEN starts no workflow, so the release commit is not built.
+  release:
+    needs: pages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: release/package-lock.json
+      - run: npm ci --prefix release
+      - run: npx --prefix release semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,15 +1,21 @@
 {
   "brand": "Volodymyr Pavlov",
-  "url": "https://volodymyr-pavlov.github.io/blog",
+  "url": "https://volodymyr-pavlov.github.io",
   "tagline": "Go backends that stay small",
   "description": "Volodymyr Pavlov, a software engineer working on backend systems in Go, and writing about keeping them small.",
   "descriptions": {
     "blog": "Writing on Go backends: one store package, wrappers instead of layers, and a main you can read top to bottom.",
     "about": "About Volodymyr Pavlov: a software engineer building backend systems in Go, and writing about keeping them small.",
-    "privacy": "How Volodymyr Pavlov handles visitor data: what the site and its host collect, and your rights under the GDPR."
+    "privacy": "How Volodymyr Pavlov handles visitor data: what the site and its host collect, and how long it is kept.",
+    "contact": "Send Volodymyr Pavlov a message about an article, a correction, or Go backends in general."
   },
   "locale": "en_US",
-  "ga4": "",
+  "ga4": "G-ZLGJZ9D6D7",
+  "web3forms": "5c591d85-391c-45b1-a744-88797e0fe80c",
+  "career": {
+    "workingSince": "2015-09-01",
+    "goSince": "2016-09-01"
+  },
   "author": {
     "name": "Volodymyr Pavlov",
     "jobTitle": "Lead Software Engineer",
@@ -23,31 +29,50 @@
     { "label": "Blog", "href": "blog/" }
   ],
   "listed": [
-    "01-bitwise-in-go",
-    "02-one-method-store-in-go",
-    "03-transactions-in-go",
+    "09-kubernetes-operator-for-an-s3-bucket-in-go",
+    "08-dj-go-on-ai-radio",
+    "06-go-and-wasm",
     "04-bitwise-store-in-go",
-    "05-brewing-the-perfect-chemex"
+    "03-transactions-in-go",
+    "02-one-method-store-in-go",
+    "01-bitwise-in-go"
   ],
   "articles": {
-    "01-bitwise-in-go": { "date": "September 2026", "section": "Go", "schemaType": "TechArticle" },
-    "02-one-method-store-in-go": { "date": "September 2026", "section": "Go", "schemaType": "TechArticle" },
-    "03-transactions-in-go": { "date": "September 2026", "section": "Go", "schemaType": "TechArticle" },
-    "04-bitwise-store-in-go": { "date": "September 2026", "section": "Go", "schemaType": "TechArticle" },
-    "05-brewing-the-perfect-chemex": { "date": "2026-09-10", "section": "Coffee", "schemaType": "BlogPosting" }
+    "01-bitwise-in-go": {
+      "date": "2026-08-21", "section": "Go", "schemaType": "TechArticle",
+      "description": "Pack boolean flags and states into one integer with Go bit operations: set, clear and test bits, and keep structs small."
+    },
+    "02-one-method-store-in-go": {
+      "date": "2026-08-28", "section": "Go", "schemaType": "TechArticle",
+      "description": "Build a Go data access layer around one generic interface with a single method, and keep it small without frameworks."
+    },
+    "03-transactions-in-go": {
+      "date": "2026-09-04", "section": "Go", "schemaType": "TechArticle",
+      "description": "Wrap one-method Go stores in a SQL transaction so two tables change together or not at all, keeping the clean architecture."
+    },
+    "04-bitwise-store-in-go": {
+      "date": "2026-09-11", "section": "Go", "schemaType": "TechArticle",
+      "description": "A clean Go architecture from one generic interface, typed bit flags and a stack of wrappers: flexible storage without a framework."
+    },
+    "06-go-and-wasm": {
+      "photoAlt": "A cartoon beaver, bear and elephant watch a game of Go, a board with black and white stones.",
+      "date": "2026-09-21", "section": "Go", "schemaType": "TechArticle",
+      "description": "Compile a Go game engine to WebAssembly, call it from a Web Worker with one exported function, and keep the hot loop allocation-free."
+    },
+    "08-dj-go-on-ai-radio": {
+      "date": "2026-10-07", "section": "Go", "schemaType": "TechArticle",
+      "description": "How a Go radio keeps one shared stream cheap for every listener and lets a local language model act as its DJ without ever touching the audio path."
+    },
+    "09-kubernetes-operator-for-an-s3-bucket-in-go": {
+      "date": "2026-10-09", "section": "Go", "schemaType": "TechArticle",
+      "description": "A Go operator built with Operator SDK that keeps an S3 bucket equal to a custom resource, and never deletes a bucket it did not create."
+    }
   },
   "captions": [
     {
-      "html": "AI-generated illustration (Gemini). The <a href=\"https://go.dev/blog/gopher\">Go gopher</a> was designed by Renée French and is licensed under <a href=\"https://creativecommons.org/licenses/by/4.0/\">CC BY 4.0</a>.",
+      "html": "AI-generated illustration. The <a href=\"https://go.dev/blog/gopher\">Go gopher</a> was designed by Renée French and is licensed under <a href=\"https://creativecommons.org/licenses/by/4.0/\">CC BY 4.0</a>.",
       "articles": [
-        "01-bitwise-in-go",
-        "02-one-method-store-in-go"
-      ]
-    },
-    {
-      "html": "AI-generated image (Gemini).",
-      "articles": [
-        "05-brewing-the-perfect-chemex"
+        "06-go-and-wasm"
       ]
     }
   ]

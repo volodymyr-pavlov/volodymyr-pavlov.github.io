@@ -1,14 +1,24 @@
-.PHONY: build serve clean
-
-# .env (git-ignored) holds AUTHOR_EMAIL=... so the address stays out of the repository.
--include .env
-export AUTHOR_EMAIL
+.PHONY: build serve test vet fmt check clean
 
 build:
-	go run ./cmd
+	go run ./app/cmd/gen
 
 serve:
-	go run ./cmd -serve 8081
+	go run ./app/cmd/gen -serve 9090
+
+test:
+	go test ./...
+
+vet:
+	go vet ./...
+
+# Fails, listing the files, when any is not gofmt-formatted.
+fmt:
+	@unformatted="$$(gofmt -l app)"; \
+	if [ -n "$$unformatted" ]; then echo "gofmt needed:"; echo "$$unformatted"; exit 1; fi
+
+# What CI runs before it builds.
+check: fmt vet test
 
 clean:
-	rm -rf dist
+	rm -rf .dist

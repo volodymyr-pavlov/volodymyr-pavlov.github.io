@@ -1,8 +1,8 @@
 # Bitwise in Go: Doing More with Less
 
 Hey there! Did you know you can stash a ton of boolean values, states, and features inside just *one* integer? By giving
-each property its own bit, you can save space and simplify your code. Let's look at how to pull this off in Go, and
-compare it against the usual way of cramming booleans and strings into a struct.
+each property its own bit, you can save space and simplify your code. This article looks at how to pull this off in
+Go, and compares it against the usual way of cramming booleans and strings into a struct.
 
 ## Where You've Seen This Before: File Permissions
 
@@ -30,13 +30,13 @@ operation (`flags & os.O_CREATE != 0`) to check if a specific flag is set.
 
 Go gives you `os.FileMode` for this, which is just a `uint32` under the hood. Its methods use these exact bitwise
 operations. It's a simple, elegant pattern: use an integer, name a constant for each bit, OR them to combine, and AND
-them to test. Let's apply this to our own Go types!
+them to test. The same pattern works for custom Go types.
 
 ## The Standard Way
 
-Let's pretend we're building a user account system. A user has a role, a subscription plan, some basic flags (like if
-they are verified), a list of active features, and an account state. Usually, we'd write a Go struct that looks a bit
-like this:
+Picture a user account system. A user has a role, a subscription plan, some basic flags (like if
+they are verified), a list of active features, and an account state. Usually, the Go struct looks a bit like
+this:
 
 ```go
 const (
@@ -89,8 +89,8 @@ dealing with locking overhead.
 
 ## The Cool Way
 
-Now, let's look at the magic of doing this all with one integer. We can define a `UserFlag` type as a `uint32` and use
-`iota` to set up our bits:
+Now for the magic of doing this all with one integer. A `UserFlag` type is defined as a `uint32`, and `iota` sets up
+the bits:
 
 ```go
 type UserFlag uint32
@@ -128,18 +128,22 @@ const (
     UserAwaitingEmail
     UserAwaitingReview
     UserAwaitingPayment
-    // We still have eleven bits free!
+    // Eleven bits are still free!
 )
 ```
 
-`iota` is Go's handy automatic counter. When we do `1 << iota`, we're taking the number 1 and shifting it to the left by
-that count. This gives us powers of two: 1, 2, 4, 8, 16, and so on. This ensures every single constant gets its very
+`iota` is Go's handy automatic counter. `1 << iota` takes the number 1 and shifts it to the left by that count. This
+gives powers of two: 1, 2, 4, 8, 16, and so on. This ensures every single constant gets its very
 own, unique bit.
 
-By creating a custom `UserFlag` type, we also get strict type safety. The compiler will yell at you if you try to pass a
+The custom `UserFlag` type also brings strict type safety. The compiler will yell at you if you try to pass a
 random integer or misspell `UserAdmin`.
 
-How do we manipulate these? You just need three operators:
+One thing the type does not enforce is exclusivity: nothing stops a user from having both `UserGuest` and `UserAdmin`
+set. Group the mutually exclusive bits under a mask, such as `userRoles = UserGuest | UserMember | UserAdmin`, and
+change them in one step with `flags = flags&^userRoles | UserAdmin`.
+
+Manipulating them takes just three operators:
 
 * **Turn it on with OR (`|`)**: Combines flags together.
   `flags := UserMember | UserPro | UserVerified`
@@ -169,8 +173,8 @@ var permissions = map[string]UserFlag{
 }
 
 func allowed(flags UserFlag, action string) bool {
-    want := permissions[action]
-    return flags&want == want
+    want, ok := permissions[action]
+    return ok && flags&want == want
 }
 ```
 
@@ -191,11 +195,11 @@ user.Flags = user.Flags&^UserAwaitingReview | UserAwaitingPayment
 
 ### The Best Parts
 
-* **No more mutex locks!** You can use `sync/atomic` and `CompareAndSwap` to safely update the integer across multiple
+* **No mutex for the flags.** You can use `sync/atomic` and `CompareAndSwap` to safely update the integer across multiple
   goroutines. If something changed while you were working, it just tries again.
 * **JSON works out of the box.** When you serialize your struct, `encoding/json` just outputs a clean, simple number
   like `"flags": 1106`.
 * **You can make it readable.** You can easily write a custom `String()` method that reads the bits and prints out
   something human-readable for your logs, like `member|pro|verified|foo`.
 
-And that's it! By letting bits do the heavy lifting, your code stays fast, strictly typed, and completely lock-free.
+And that's it! By letting bits do the heavy lifting, your code stays fast and strictly typed, and updating the flags needs no lock.

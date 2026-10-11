@@ -1,5 +1,6 @@
-dist/
+.dist/
 .env
 .idea/
 **/.scratch/
 .DS_Store
+release/node_modules/

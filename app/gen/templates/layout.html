@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>{{.Title}}</title>
+<meta http-equiv="Content-Security-Policy" content="{{.ContentSecurityPolicy}}" />
+<meta name="description" content="{{.Description}}" />
+{{if .NoIndex}}<meta name="robots" content="noindex, follow" />
+{{end}}<meta name="author" content="{{.Site.Author.Name}}" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="canonical" href="{{.CanonicalURL}}" />
+<link rel="icon" href="{{.Root}}favicon.ico" sizes="48x48" />
+<link rel="icon" href="{{.Root}}logo.svg" type="image/svg+xml" />
+<link rel="alternate" type="application/atom+xml" title="{{.Site.Brand}}" href="{{.Root}}feed.xml" />
+<meta property="og:site_name" content="{{.Site.Brand}}" />
+<meta property="og:type" content="{{.Type}}" />
+<meta property="og:title" content="{{.OGTitle}}" />
+<meta property="og:description" content="{{.Description}}" />
+<meta property="og:url" content="{{.CanonicalURL}}" />
+<meta property="og:locale" content="{{.Site.Locale}}" />
+<meta property="og:image" content="{{.ShareImageURL}}" />
+<meta property="og:image:width" content="{{.ShareImageWidth}}" />
+<meta property="og:image:height" content="{{.ShareImageHeight}}" />
+<meta property="og:image:type" content="{{.ShareImageType}}" />
+<meta property="og:image:alt" content="{{.ShareImageAlt}}" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="{{.OGTitle}}" />
+<meta name="twitter:description" content="{{.Description}}" />
+<meta name="twitter:image" content="{{.ShareImageURL}}" />
+{{with .Site.Author.Twitter}}<meta name="twitter:creator" content="{{.}}" />
+{{end}}{{.HeadTags}}
+<link rel="stylesheet" href="{{.Root}}css/main.css" />
+{{.JSONLD}}
+{{.Script}}</head>
+<body>
+<div id="paper">
+<header id="header">
+<a class="mark" href="{{.Home}}" aria-label="Home">{{.Logo}}</a>
+<div>
+<nav class="nav">
+  {{.Nav}}
+</nav>
+</div>
+</header>
+
+<main id="content"{{if .Prose}} class="prose"{{end}}>
+
+{{.Body}}
+
+</main>
+
+<footer id="footer">
+{{.Footer}}
+</footer>
+</div>
+</body>
+</html>

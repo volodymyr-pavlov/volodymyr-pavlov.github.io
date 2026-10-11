@@ -8,10 +8,10 @@ Here is how this minimalist approach works:
 *   Instead of writing custom functions for every lookup, you just use the data row itself as your query.
 *   Any backend that supports this single action fits right in—whether that is a simple memory map, a full database, or
     a tiny fake for testing.
-*   All that extra clutter that usually builds up in a repository over the years? It is almost always just database
-    filtering logic in disguise, or it deserves to be broken out into its own separate, single-action interface.
+*   All that extra clutter that usually builds up in a repository over the years? Much of it is database
+    filtering logic in disguise, and the rest deserves to be broken out into its own separate, single-action interface.
 
-Let's break down exactly why traditional patterns grow out of control and how sticking to just one method fixes the
+Here is exactly why traditional patterns grow out of control and how sticking to just one method fixes the
 problem.
 
 ## The Repository That Grew
@@ -117,6 +117,9 @@ any wrappers.
 The order of the cases determines priority (e.g., ID wins over email), which keeps the logic centralized in the store
 rather than scattered across your application.
 
+There are two limits. A zero value means "not set", so you cannot query for `ID: 0` or `Active: false`. And one row in,
+one row out: listings such as "all users with this role" need their own interface, for example a `Lister[T]`.
+
 ## The Big Wins
 
 This approach gives you two massive advantages:
@@ -160,8 +163,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         ID: id,
     })
 
-    if err != nil {
+    if errors.Is(err, data.ErrNotFound) {
         http.Error(w, err.Error(), http.StatusNotFound)
+        return
+    }
+    if err != nil {
+        http.Error(w, "internal error", http.StatusInternalServerError)
         return
     }
     w.Header().Set("Content-Type", "application/json")

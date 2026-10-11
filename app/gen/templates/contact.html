@@ -1,0 +1,23 @@
+{{/* access_key, subject, from_name, redirect and botcheck are the field names Web3Forms reads. */}}
+{{define "contact-form"}}<p id="sent" class="sent">Thanks, your message is on its way. I will answer by email.</p>
+<form class="contact" action="{{.Endpoint}}" method="POST">
+<input type="hidden" name="access_key" value="{{.Key}}" />
+<input type="hidden" name="subject" value="New message on {{.Brand}}" />
+<input type="hidden" name="from_name" value="{{.Brand}}" />
+<input type="hidden" name="redirect" value="{{.Redirect}}" />
+<input type="checkbox" name="botcheck" class="botcheck" tabindex="-1" autocomplete="off" />
+<label for="contact-name">Name</label>
+<input id="contact-name" type="text" name="name" autocomplete="name" required />
+<label for="contact-email">Email</label>
+<input id="contact-email" type="email" name="email" autocomplete="email" required />
+<label for="contact-message">Message</label>
+<textarea id="contact-message" name="message" rows="6" required></textarea>
+<p class="captcha-notice">This form uses hCaptcha to block spam. hCaptcha receives your IP address and browser details. See the <a href="{{.Privacy}}">privacy page</a>.</p>
+<div class="h-captcha" data-captcha="true"></div>
+<p id="captcha-missing" class="captcha-missing" hidden>Please complete the check above first.</p>
+<button type="submit">Send</button>
+</form>
+{{end}}
+
+{{define "captcha-script"}}<script src="{{.}}" async defer></script>
+{{end}}

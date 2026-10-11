@@ -1,0 +1,18 @@
+{{define "archive"}}<h1>{{.Title}}</h1>
+<div class="archive">
+
+{{range .Years}}<h2>{{.Year}}</h2>
+
+{{range .Months}}{{with .Month}}<h3>{{.}}</h3>
+
+{{end}}{{range .Articles}}{{template "archive-entry" .}}
+{{end}}{{end}}{{end}}</div>
+{{end}}
+
+{{define "archive-entry"}}<div class="card">
+<p class="entry"><a href="{{.File}}">{{.Title}}</a></p>
+{{with .Description}}<p class="summary">{{.}}</p>
+{{end}}</div>{{end}}
+
+{{define "latest"}}{{range .}}<p class="entry"><a href="{{.Path}}">{{.Title}}</a></p>
+{{end}}{{end}}

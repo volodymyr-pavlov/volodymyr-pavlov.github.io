@@ -1,0 +1,701 @@
+:root {
+    --sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    /* Palette: black, white and greys only. */
+    --primary: #171717;
+    --text: var(--primary);
+    --bg: #fff;
+    --muted: #737373;
+    --error: var(--primary);
+    --link-rule: #d4d4d4;
+    --code-string: #525252;
+    --code-comment: #737373;
+    --on-primary: #fff;
+    --ease: 0.18s ease-out;
+
+    --text-small: 0.875rem;
+    --text-base: 1rem;
+
+    --space-lead: 22px;
+    --space-section: 44px;
+    color-scheme: light;
+}
+
+body {
+    margin: 0;
+    font-size: var(--text-base);
+    font-family: var(--sans);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: clip;
+}
+
+/* The column that holds the header, the content and the footer. */
+#paper {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+    max-width: 50em;
+    margin: 0 auto;
+    padding-bottom: 64px;
+    box-sizing: border-box;
+}
+
+#content {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 50em;
+    margin: var(--space-lead) auto calc(2 * var(--space-section)) auto;
+    padding: 0 16px;
+}
+
+/* The counts on the home page. */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 0 1rem;
+    max-width: 36rem;
+    margin: 3.5rem 0;
+}
+
+.stats dd {
+    margin: 0;
+}
+
+.stat {
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 2rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--primary);
+}
+
+.stat-label {
+    margin-top: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: #737373;
+}
+
+@media (min-width: 40em) {
+    .stat {
+        font-size: 1.875rem;
+        line-height: 2.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+    }
+}
+
+a:link, a:visited {
+    position: relative;
+    text-decoration: none;
+    color: var(--text);
+}
+
+a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 1px;
+    background-color: var(--primary);
+    transform: scaleX(0);
+    transform-origin: left center;
+    will-change: transform;
+    transition: transform var(--ease);
+}
+
+a:hover::after,
+a:focus-visible::after {
+    transform: scaleX(1);
+}
+
+/* Links in the content and the footer are underlined by a background that fills on hover; those in the header, by an ::after bar. */
+#content a,
+#footer a,
+#footer button {
+    text-decoration: none;
+    font-weight: 400;
+    background-image: linear-gradient(var(--primary), var(--primary)),
+    linear-gradient(var(--link-rule), var(--link-rule));
+    background-size: 0 1px, 100% 1px;
+    background-position: 0 100%, 0 100%;
+    background-repeat: no-repeat;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    transition: background-size var(--ease);
+}
+
+#content a:hover,
+#content a:focus-visible,
+#footer a:hover,
+#footer a:focus-visible,
+#footer button:hover,
+#footer button:focus-visible {
+    background-size: 100% 1px, 100% 1px;
+}
+
+#content a::after,
+#footer a::after {
+    display: none;
+}
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+}
+
+#content > * {
+    animation: fade-up 0.5s ease-out both;
+}
+
+#content > :nth-child(2) { animation-delay: 60ms; }
+#content > :nth-child(3) { animation-delay: 120ms; }
+#content > :nth-child(n+4) { animation-delay: 180ms; }
+
+@media (prefers-reduced-motion: reduce) {
+    a::after, #content a, #footer a, #footer button {
+        transition: none;
+    }
+
+    #content > * {
+        animation: none;
+    }
+}
+
+#header {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 50em;
+    height: 5rem;
+    margin: 0 auto;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+#header p {
+    margin: 0;
+}
+
+#header .nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0 1.75rem;
+    font-size: 1.125rem;
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.5rem;
+}
+
+#header .nav a {
+    margin: 0;
+    text-underline-offset: 4px;
+}
+
+#header .nav a:hover,
+#header .nav a:focus-visible,
+#header .nav a[aria-current="page"] {
+    text-decoration: underline;
+}
+
+#header .nav a::after {
+    display: none;
+}
+
+.mark {
+    display: block;
+    flex: none;
+}
+
+.mark::after {
+    display: none;
+}
+
+.mark svg {
+    display: block;
+    width: 37px;
+    height: 37px;
+}
+
+img {
+    margin: 1.5rem 0 0 0;
+    max-width: 100%;
+    border-radius: 1rem;
+}
+
+p {
+    margin: 0 0 1rem 0;
+    line-height: 1.625;
+}
+
+/* The home page is the only one with a larger lead paragraph. */
+#content:not(.prose) :is(p, li) {
+    font-size: 1.125rem;
+}
+
+@media (min-width: 48em) {
+    #content:not(.prose) :is(p, li) {
+        font-size: 1.25rem;
+    }
+}
+
+/* The Latest section of the home page sets its list in the article style. */
+#content:not(.prose) h2 {
+    color: #111827;
+}
+
+#content:not(.prose) p.entry {
+    font-size: 1rem;
+    line-height: 1.625;
+    color: #000;
+}
+
+/* Every page but the home page sets its text at 16px, black, with a 26px line for paragraphs and 28px for list items. */
+#content.prose {
+    color: #000;
+}
+
+#content.prose li {
+    line-height: 1.75;
+}
+
+#content.prose :is(strong, b) {
+    font-weight: 600;
+    color: #111827;
+}
+
+#content.prose h1 {
+    font-size: 36px;
+    line-height: 40px;
+}
+
+#content.prose :is(h2, h3, h4) {
+    color: #111827;
+}
+
+ul, ol {
+    margin: 0 0 1rem 0;
+    padding-left: 2rem;
+}
+
+li {
+    margin-top: 0.125rem;
+}
+
+li > ul, li > ol {
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+}
+
+blockquote {
+    margin: 0 0 1rem 0;
+    padding-left: 1em;
+    color: var(--muted);
+    font-style: normal;
+    font-weight: 400;
+}
+
+pre {
+    font-family: var(--mono);
+    font-size: 1rem;
+    line-height: 1.5rem;
+    margin: 0 0 1rem 0;
+    padding: 0.875rem 1rem;
+    color: #000;
+    background-color: #fafafa;
+    border-radius: 0.75rem;
+    overflow-x: auto;
+    white-space: pre;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+}
+
+code {
+    font-family: var(--mono);
+    font-size: 85%;
+    font-weight: 400;
+    background-color: #fafafa;
+    border-radius: 0.375rem;
+    padding: 0 0.5rem;
+}
+
+pre > code {
+    padding: 0;
+    background: none;
+    border-radius: 0;
+}
+
+pre > code .keyword {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+pre > code .string {
+    color: var(--code-string);
+}
+
+pre > code .comment {
+    color: var(--code-comment);
+}
+
+h1, h2, h3, h4 {
+    font-family: var(--sans);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    margin: 1.25em 0 0.7em 0;
+}
+
+h1 {
+    font-size: 32px;
+    line-height: 1.25;
+    margin: 0 0 14px 0;
+}
+
+h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+}
+
+h3 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+}
+
+h4 {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+}
+
+#content h2 a, #content h3 a {
+    background-image: none;
+}
+
+.date {
+    font-size: var(--text-small);
+    color: var(--muted);
+    margin: 0 0 var(--space-section) 0;
+}
+
+.entry, .card {
+    margin: 0;
+    padding: 6px 0;
+}
+
+/* On the blog page the title and summary share one card. */
+.card .entry {
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    transform: none;
+}
+
+.summary {
+    font-size: var(--text-base);
+    color: var(--muted);
+    margin: -8px 0 20px 0;
+}
+
+/* The title link stretches over the whole card, so a click anywhere on it opens the article. */
+.card {
+    position: relative;
+    cursor: pointer;
+}
+
+#content .card .entry a:link,
+#content .card .entry a:visited {
+    position: static;
+}
+
+#content .card .entry a::after,
+#content .card .entry a:hover::after,
+#content .card .entry a:focus-visible::after {
+    content: "";
+    display: block;
+    position: absolute;
+    inset: 0;
+    height: auto;
+    background: none;
+    transform: none;
+    transition: none;
+}
+
+.card .summary {
+    margin: 0;
+}
+
+.feature {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0 0 var(--space-section) 0;
+    border-radius: 0.75rem;
+}
+
+#footer {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 50em;
+    margin: auto auto 0 auto;
+    padding: 8px 16px 0;
+}
+
+#footer p {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    margin: 0;
+    font-size: var(--text-small);
+    line-height: 1.25rem;
+    color: var(--muted);
+}
+
+@media (min-width: 48em) {
+    #footer p {
+        font-size: 0.75rem;
+        line-height: 1rem;
+    }
+}
+
+#footer a,
+#footer button {
+    color: var(--muted);
+    background-image: none;
+    text-underline-offset: 4px;
+}
+
+#footer a:hover,
+#footer a:focus-visible,
+#footer button:hover,
+#footer button:focus-visible {
+    text-decoration: underline;
+}
+
+#footer button {
+    padding: 0;
+    font: inherit;
+    line-height: inherit;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.feature-figure {
+    margin: 0 0 var(--space-section) 0;
+}
+
+.feature-figure .feature {
+    margin-bottom: 8px;
+}
+
+.feature-figure figcaption {
+    font-size: var(--text-small);
+    color: var(--muted);
+}
+
+/* The contact form comes from templates/contact.html. Web3Forms redirects back to #sent, so the note shows only then. */
+.contact {
+    display: grid;
+    grid-template-columns: 6em minmax(0, 24em);
+    align-items: center;
+    gap: 10px 16px;
+    margin-top: 36px;
+    font-size: var(--text-small);
+}
+
+.contact label {
+    color: var(--muted);
+}
+
+.contact label[for="contact-message"] {
+    align-self: start;
+    padding-top: 6px;
+}
+
+.contact input,
+.contact textarea {
+    min-width: 0;
+    font: inherit;
+    line-height: 1.3;
+    padding: 4px 12px;
+    color: var(--text);
+    background-color: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 999px;
+}
+
+.contact textarea {
+    border-radius: 0.75rem;
+    resize: vertical;
+}
+
+.contact input:focus-visible,
+.contact textarea:focus-visible {
+    outline: none;
+    border-color: #a3a3a3;
+}
+
+.contact .h-captcha,
+.contact .captcha-missing,
+.contact .captcha-notice {
+    grid-column: 2;
+}
+
+.contact .captcha-notice {
+    margin: 0;
+    color: var(--muted);
+}
+
+.contact .captcha-missing {
+    margin: 0;
+    color: var(--error);
+}
+
+.contact button {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font: inherit;
+    font-size: 1.125rem;
+    font-weight: 400;
+    line-height: 1.75rem;
+    padding: 0.5rem 1.5rem;
+    color: var(--on-primary);
+    background-color: var(--primary);
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background-color var(--ease);
+}
+
+.contact button:hover,
+.contact button:focus-visible {
+    background-color: #000;
+}
+
+.contact .botcheck,
+.sent {
+    display: none;
+}
+
+.sent:target {
+    display: block;
+    padding: 8px 12px;
+    border-radius: 0.5rem;
+    background-color: #fafafa;
+}
+
+@media (max-width: 32em) {
+    .contact {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    .contact label {
+        margin-top: 10px;
+    }
+
+    .contact .h-captcha,
+    .contact .captcha-missing,
+    .contact .captcha-notice,
+    .contact button {
+        grid-column: 1;
+    }
+
+    .contact .h-captcha,
+    .contact button {
+        margin-top: 12px;
+    }
+}
+
+/* The consent bar is created by js/consent.js (BAR_ID). */
+#consent {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    z-index: 10;
+    max-width: 40em;
+    margin: 0 auto;
+    padding: 12px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    font-size: var(--text-small);
+    background-color: var(--bg);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid #e5e5e5;
+    border-radius: 0.75rem;
+}
+
+#consent p {
+    flex: 1 1 16em;
+    margin: 0;
+}
+
+#consent button {
+    font: inherit;
+    padding: 0.5rem 1.5rem;
+    color: var(--text);
+    background-color: var(--bg);
+    border: 1px solid var(--link-rule);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background-color var(--ease);
+}
+
+#consent button:hover,
+#consent button:focus-visible {
+    background-color: #f5f5f5;
+}
+
+@media (max-width: 40em) {
+    #consent p {
+        flex-basis: 100%;
+    }
+
+    #consent button {
+        flex: 1 1 0;
+    }
+}
+
+/* Last, so it overrides the display of the elements above. */
+@media print {
+    #header, #consent {
+        display: none;
+    }
+}

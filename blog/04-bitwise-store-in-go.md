@@ -1,15 +1,15 @@
-# One-Method Finder & Bit Flags
+# Bitwise Store in Go
 
-Building a clean architecture in Go doesn't require massive frameworks. You can build a highly scalable, flexible system
+Building a clean architecture in Go doesn't require massive frameworks. You can build a flexible, easy-to-test system
 using just one generic interface, a typed set of bit flags, and a clever stack of wrappers.
 
-Let's break down how this works using a completely neutral domain: an `Item` that can have a few generic flags: `Foo`,
+Here is how this works, using a completely neutral domain: an `Item` that can have a few generic flags: `Foo`,
 `Bar`, and `Baz`.
 
 ## 1. The Item and Its Bits
 
-Imagine we have a simple `Item` struct that holds an ID, a name, and a numeric `Value`. Instead of adding boolean fields
-like `IsFoo` or `IsBar`, we'll use the bit flag trick to store all its properties in a single `uint8` integer.
+Imagine a simple `Item` struct that holds an ID, a name, and a numeric `Value`. Instead of adding boolean fields like
+`IsFoo` or `IsBar`, the bit flag trick stores all its properties in a single `uint8` integer.
 
 ```go
 // package data
@@ -36,7 +36,7 @@ test them with AND (`&`), and remove them with bit clear (`&^`).
 
 ## 2. One Interface to Rule Them All
 
-We keep our database interactions ridiculously simple by defining a generic `Finder` interface with exactly one method:
+Database interactions stay ridiculously simple with a generic `Finder` interface that has exactly one method:
 `Retrieve`.
 
 ```go
@@ -48,10 +48,10 @@ type Finder[T any] interface {
 Because it uses generics (`T any`), the query you send in and the result you get back are the exact same type. Calling
 `Retrieve(ctx, data.Item{ID: 7})` basically says, "find the item that looks like this".
 
-Our initial backend can just be a dead-simple in-memory map:
+The initial backend can just be a dead-simple in-memory map:
 
 ```go
-// package cache
+// package inmem
 type Items struct {
     Rows map[uint64]data.Item
 }
@@ -65,16 +65,16 @@ func (s *Items) Retrieve(_ context.Context, i data.Item) (data.Item, error) {
 }
 ```
 
-There is no `implements` keyword. The Go compiler just checks that `*cache.Items` has a `Retrieve` with the right
-signature when we actually wire it up in `main`.
+There is no `implements` keyword. The Go compiler just checks that `*inmem.Items` has a `Retrieve` with the right
+signature when it is actually wired up in `main`.
 
 ## 3. The Magic of Decorators
 
-Instead of cramming all our business rules into one massive function, behavior lives in wrappers. A wrapper is just a
+Instead of cramming all the business rules into one massive function, behavior lives in wrappers. A wrapper is just a
 struct that holds an inner `Finder` while also acting as a `Finder` itself. It calls the inner finder, gets the data,
 and then does its one specific job.
 
-Let's say the `Foo` flag means the item gets a bonus added to its value:
+Say the `Foo` flag means the item gets a bonus added to its value:
 
 ```go
 // package foo
@@ -97,7 +97,7 @@ func (s *Items) Retrieve(ctx context.Context, i data.Item) (data.Item, error) {
 }
 ```
 
-And let's say the `Bar` flag means the item's value gets reduced by a certain percentage:
+And say the `Bar` flag means the item's value gets reduced by a certain percentage:
 
 ```go
 // package bar
@@ -160,7 +160,7 @@ And in `main`, you just use a single, nested struct literal to stack them like b
 handler := &api.Handler{
     Decorator: &bar.Items{
         Decorator: &foo.Items{
-            Decorator: &cache.Items{
+            Decorator: &inmem.Items{
                 Rows: database,
             },
             Bonus: 150,
@@ -210,14 +210,15 @@ and never breaks because another test needed a different setup.
 
 As your application grows, this shape stays exactly the same:
 
-* **A third rule arrives:** Let's say `Baz` items cannot be modified. You just create a `baz` package that checks
-  `FlagBaz` and skips the other math. You add one more line to the literal stack in `main`. The `foo` and `bar` packages
+* **A third rule arrives:** Say `Baz` items cannot be modified. You just create a `baz` package that checks
+  `FlagBaz` and clears `FlagFoo` and `FlagBar` from the loaded item, so the wrappers above it have nothing to apply. It
+  goes directly on top of the store. You add one more line to the literal stack in `main`. The `foo` and `bar` packages
   aren't even opened.
 * **Moving to a database:** The in-memory map becomes a SQL table. `database.Items` implements the exact same single
   method, building a `WHERE` clause from the query fields. Only the innermost line of the literal in `main` changes. The
   rules, handler, and tests are entirely unaffected.
 * **Integration Tests:** A test that needs the whole stack just builds the same literal that `main` builds, putting the
-  `cache.Items` fake at the bottom, calls the handler, and reads the JSON. No test database containers required.
+  `inmem.Items` fake at the bottom, calls the handler, and reads the JSON. No test database containers required.
 
 Every package imports `data` and nothing else. The `data` package imports nothing. `main` is the only file that knows
 all the concrete types. The dependency graph keeps its beautiful, simple shape no matter how many wrappers you add!
