@@ -8,7 +8,8 @@ nothing at all. The radio keeps the two paths apart and joins them with one hand
 stop the music.
 
 This article follows how the system was built: how the streaming path is designed, which ideas were changed after
-measuring them, and how the AI presenter is kept away from the music.
+measuring them, and how the AI presenter is kept away from the music. The code is at
+<https://github.com/volodymyr-pavlov/go-webrtc-audio>.
 
 ## What This Article Covers
 

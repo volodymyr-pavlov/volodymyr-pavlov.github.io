@@ -4,7 +4,7 @@ Here is a small game of Go you can play in your browser, and the opponent is a M
 in... Go. No server thinks for it. The engine is compiled to WebAssembly, lives in a Web Worker,
 and plays up to a thousand random games before it answers. This article is about the Wasm part: how to build it, how
 to call it from JavaScript, and what it took to keep the whole thing small and fast. You can
-[play it here](https://go-game-c9ccd.web.app/) first, if you like.
+[play it here](https://go-game.volodymyr-pavlov.workers.dev/) first, if you like.
 
 ## Why Wasm at All?
 
@@ -51,7 +51,7 @@ import (
     "math/rand/v2"
     "syscall/js"
 
-    "example.com/go-game/engine/game"
+    "github.com/volodymyr-pavlov/go-game/packages/engine/game"
 )
 
 func main() {
@@ -133,7 +133,7 @@ return {
 ```
 
 `instantiateStreaming` compiles the binary while it is still downloading, but it only works when the server sends
-`Content-Type: application/wasm`. Firebase Hosting does. A local dev server might not, so the loader falls back to
+`Content-Type: application/wasm`. Cloudflare does. A local dev server might not, so the loader falls back to
 `arrayBuffer()` plus `WebAssembly.instantiate` when the header is missing.
 
 ## Put It in a Worker
@@ -172,11 +172,16 @@ and the browser got the same speedup. `go test -bench` works, `pprof` works, and
 The Go runtime is not small, and all of it ends up in the binary. A few things help:
 
 * **Strip it.** `-ldflags="-s -w"` is the cheapest win.
-* **Compress it.** Wasm compresses well. Firebase Hosting compresses it at deploy time and serves gzip or Brotli,
-  whichever the browser accepts. On the wire the 4.7 MB engine is 1.3 MB with gzip and 0.96 MB with Brotli.
+* **Compress it.** Wasm compresses well, and who compresses it matters. Cloudflare compresses on the way out, once
+  per response, so it picks a fast, low Brotli level: the 4.7 MB engine went over the wire as 1.3 MB with gzip and
+  1.2 MB with Brotli. Firebase Hosting, where this game lived before, compressed once at deploy time at the highest
+  level and served the same file as 0.96 MB. A host that compresses at request time trades bytes for latency. So the
+  build now compresses the binary itself, once, at Brotli level 11, and a twenty-line Worker in front of the static
+  site hands that `.br` file to any browser that accepts Brotli, with `encodeBody: "manual"` so Cloudflare does not
+  compress it again. The engine is 0.96 MB on the wire again, and the Worker runs only for that one path.
 * **Load it late.** The worker is not started until the engine's first turn. The board is drawn and ready to play
   before a single byte of the engine is downloaded.
-* **Cache it.** The binary is served as plain `engine.wasm` with Firebase's default `Cache-Control: max-age=0,
+* **Cache it.** The binary is served as plain `engine.wasm` with Cloudflare's default `Cache-Control: public, max-age=0,
   must-revalidate`, so the browser asks the server on every visit and downloads the file again only when it changed.
   That is safe for updates but not free. For a long-lived cache, put a hash or a version in the file name and set a
   long `max-age`.

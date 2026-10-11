@@ -15,4 +15,4 @@ flight, fixed arrays `[N]T` to stay on the stack, and bitmasks instead of a stru
 
 ## Get in Touch
 The best way to reach me is through the [contact page](contact.html) or on
-[LinkedIn](https://www.linkedin.com/in/vladymyrpavlov/). Code lives on [GitHub](https://github.com/grakholsky).
+[LinkedIn](https://www.linkedin.com/in/vladymyrpavlov/). Code lives on [GitHub](https://github.com/volodymyr-pavlov).

@@ -9,6 +9,8 @@ operator can crash in the middle of a step. Someone can change a bucket by hand.
 of objects. The whole cluster can be lost. This article shows how the operator handles each case, and which questions
 are still open.
 
+The code is at <https://github.com/volodymyr-pavlov/go-k8s-operator-sdk>.
+
 ## What This Article Covers
 
 The operator is small on purpose, so every decision can be explained. It has one resource, one controller and one
