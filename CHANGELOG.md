@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.0](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/compare/v1.1.0...v1.2.0) (2026-10-11)
+
+### Features
+
+* show only the Older and Newer labels on phones ([43aacb6](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/commit/43aacb642964f561b011bd6b5b77b98980565aa2))
+
 ## [1.1.0](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/compare/v1.0.0...v1.1.0) (2026-10-11)
 
 ### Features
