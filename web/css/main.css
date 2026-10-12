@@ -241,8 +241,8 @@ a:focus-visible::after {
 
 .mark svg {
     display: block;
-    width: 37px;
-    height: 37px;
+    width: 32px;
+    height: 32px;
 }
 
 img {
