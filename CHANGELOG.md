@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.0](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/compare/v1.2.0...v1.3.0) (2026-10-12)
+
+### Features
+
+* replace the logo with the new planet mark ([8c05a7e](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/commit/8c05a7e8b2254e9cd93fc06db7afaec147ef7531))
+
 ## [1.2.0](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/compare/v1.1.0...v1.2.0) (2026-10-11)
 
 ### Features
