@@ -353,6 +353,34 @@ pre > code {
     border-radius: 0;
 }
 
+table {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    margin: 0 0 1rem 0;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: var(--text-small);
+    line-height: 1.5;
+}
+
+th, td {
+    padding: 0.5rem 0.875rem;
+    border-bottom: 1px solid var(--link-rule);
+    text-align: left;
+    vertical-align: top;
+}
+
+th {
+    border-bottom: 2px solid var(--primary);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+tbody tr:last-child td {
+    border-bottom: 0;
+}
+
 pre > code .keyword {
     color: var(--primary);
     font-weight: 700;
