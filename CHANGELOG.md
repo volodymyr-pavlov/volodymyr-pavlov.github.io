@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/compare/v1.3.0...v1.4.0) (2026-10-20)
+
+### Features
+
+* add the article about Ollama in a Go login service ([47af362](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/commit/47af3628548b9f1e1d9a17a6268a5aee21497b22))
+* style Markdown tables ([7b8b7f8](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/commit/7b8b7f8179a5ecc1db9a911a059cf283d7e3989e))
+
 ## [1.3.0](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/compare/v1.2.0...v1.3.0) (2026-10-12)
 
 ### Features
