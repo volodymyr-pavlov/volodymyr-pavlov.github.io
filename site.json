@@ -29,7 +29,7 @@
     { "label": "Blog", "href": "blog/" }
   ],
   "listed": [
-    "10-ollama-auth-guard",
+    "10-ollama-go-auth",
     "09-kubernetes-operator-for-an-s3-bucket-in-go",
     "08-dj-go-on-ai-radio",
     "06-go-and-wasm",
@@ -68,9 +68,9 @@
       "date": "2026-10-09", "section": "Go", "schemaType": "TechArticle",
       "description": "A Go operator built with Operator SDK that keeps an S3 bucket equal to a custom resource, and never deletes a bucket it did not create."
     },
-    "10-ollama-auth-guard": {
+    "10-ollama-go-auth": {
       "date": "2026-10-20", "section": "Go", "schemaType": "TechArticle",
-      "description": "A Go login service that asks a small local model for advice on each login. The rules decide, the model can only add checks, and on the test data it added nothing."
+      "description": "A Go auth service where fixed rules score each login and a small local model, served by Ollama, can only make the decision stricter. On the test data it changed no decision."
     }
   },
   "captions": [
