@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.5.2](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/compare/v1.5.1...v1.5.2) (2026-10-24)
+
+### Bug Fixes
+
+* read an inline formula that is wrapped over several lines ([8ac2817](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/commit/8ac2817a92e3fe66100c4d019214cd5ed96ca029))
+
 ## [1.5.1](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/compare/v1.5.0...v1.5.1) (2026-10-24)
 
 ### Bug Fixes
