@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.5.0](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/compare/v1.4.0...v1.5.0) (2026-10-24)
+
+### Features
+
+* draw TeX formulas as MathML ([706fe17](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/commit/706fe17b7385c74f3b9ecac1ece0b5a0632a1f27))
+
 ## [1.4.0](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/compare/v1.3.0...v1.4.0) (2026-10-20)
 
 ### Features
