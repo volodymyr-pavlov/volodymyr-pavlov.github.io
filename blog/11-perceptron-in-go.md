@@ -155,20 +155,24 @@ No single straight line has the first pair on one side and the second pair on th
 a line, so it keeps fixing one mistake and creating another.
 
 The opposite is also true. If a line that separates the examples exists, the learning rule always finds one, after a
-limited number of steps. Albert Novikoff proved in 1962 that, starting from zero weights, the perceptron makes at most
-$(R/\gamma)^2$ mistakes in total, at any learning rate. To state it exactly, add the bias to every input as one more
-coordinate that is always 1. An input becomes $\mathbf{x} = (x_1, x_2, 1)$, and the weights with the bias become
-$\mathbf{w} = (w_1, w_2, b)$. Let $s$ be $+1$ when the right answer is 1 and $-1$ when it is 0. Then
+limited number of steps. Albert Novikoff proved in 1962 that, starting from zero weights, the total number of mistakes
+is bounded by $(R/\gamma)^2$. Here, each input is extended with an additional coordinate equal to 1 to account for the
+bias, so an input becomes $\mathbf{x} = (x_1, x_2, 1)$ and the weights with the bias become $\mathbf{w} = (w_1, w_2,
+b)$. $R$ is the maximum Euclidean norm of these extended input vectors, and $\gamma$ is the margin of a separating
+boundary in the extended space (a line, for two inputs), using a unit-length weight vector. This bound applies when
+the training examples are linearly separable.
+
+In symbols, let $s$ be $+1$ when the right answer is 1 and $-1$ when it is 0. The margin of a unit-length $\mathbf{w}$
+is the smallest value of $s \, (\mathbf{w} \cdot \mathbf{x})$ over the examples. Any separating $\mathbf{w}$ gives a
+valid bound, and the best one, with the largest margin, gives the tightest:
 
 $$
 R = \max \, |\mathbf{x}|, \qquad \gamma = \max_{|\mathbf{w}| = 1} \; \min \, s \, (\mathbf{w} \cdot \mathbf{x}),
 $$
 
-where the maximum and the minimum run over all the examples. So $R$ is the largest length of an input with the extra
-coordinate, and $\gamma$ shows how well the best $\mathbf{w}$ of length 1 separates the examples. A line separates
-them exactly when $\gamma > 0$. For AND, $R^2 = 3$ and $\gamma \approx 0.24$, so the limit is about 52 mistakes, and
-the run above made 10. The test `TestSeparatesPointsOfALine` in the repository checks that the rule learns all 300
-random points at three learning rates.
+where the maximum over $\mathbf{x}$ and the minimum run over the examples. For AND, $R^2 = 3$ and $\gamma \approx
+0.24$, so the bound is about 52 mistakes, and the run above made 10. The test `TestSeparatesPointsOfALine` in the
+repository checks that the rule learns all 300 random points at three learning rates.
 
 ## What Came Next
 
