@@ -29,6 +29,7 @@
     { "label": "Blog", "href": "blog/" }
   ],
   "listed": [
+    "11-perceptron-in-go",
     "10-ollama-go-auth",
     "09-kubernetes-operator-for-an-s3-bucket-in-go",
     "08-dj-go-on-ai-radio",
@@ -71,6 +72,10 @@
     "10-ollama-go-auth": {
       "date": "2026-10-20", "section": "Go", "schemaType": "TechArticle",
       "description": "A Go auth service where fixed rules score each login and a small local model, served by Ollama, can only make the decision stricter. On the test data it changed no decision."
+    },
+    "11-perceptron-in-go": {
+      "date": "2026-10-24", "section": "Go", "schemaType": "TechArticle",
+      "description": "How a perceptron works and learns, with a short Go implementation: a weighted vote, a line in the plane, and why XOR defeats it."
     }
   },
   "captions": [
