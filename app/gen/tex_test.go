@@ -33,6 +33,11 @@ func TestTexToMathML(t *testing.T) {
 			want: `<mrow><mi>R</mi><mo lspace="0em" rspace="0em">/</mo><mi>g</mi></mrow>`,
 		},
 		{
+			name: "a bar hugs what it encloses",
+			src:  "|w|",
+			want: `<mrow><mo lspace="0em" rspace="0em">|</mo><mi>w</mi><mo lspace="0em" rspace="0em">|</mo></mrow>`,
+		},
+		{
 			name: "a minus is the minus sign",
 			src:  "t - y",
 			want: "<mrow>" + "<mi>t</mi><mo>−</mo><mi>y</mi>" + "</mrow>",

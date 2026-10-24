@@ -198,8 +198,8 @@ func (p *texParser) atom() (string, error) {
 		switch c {
 		case '.':
 			return `<mo lspace="0em">.</mo>`, nil
-		case '/':
-			return `<mo lspace="0em" rspace="0em">/</mo>`, nil
+		case '/', '|':
+			return `<mo lspace="0em" rspace="0em">` + string(c) + `</mo>`, nil
 		}
 
 		return "<mo>" + texEscape(op) + "</mo>", nil
