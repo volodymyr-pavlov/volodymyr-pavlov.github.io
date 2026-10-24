@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.5.1](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/compare/v1.5.0...v1.5.1) (2026-10-24)
+
+### Bug Fixes
+
+* keep a bar in a formula close to what it encloses ([219ab85](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/commit/219ab85498666d73c3a1a80c48f225f4b2ebf731))
+
 ## [1.5.0](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/compare/v1.4.0...v1.5.0) (2026-10-24)
 
 ### Features
