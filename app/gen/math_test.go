@@ -31,6 +31,30 @@ func TestMathInText(t *testing.T) {
 	}
 }
 
+// TestMathOverALineBreak proves that a formula in the text may be wrapped over two lines of the Markdown, as an editor
+// wraps it at a space, and still be drawn whole, while two prices on two lines are still text.
+func TestMathOverALineBreak(t *testing.T) {
+	got, err := markdownHTML("The weights $\\mathbf{w} = (w_1, w_2,\nb)$ and more.")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	html := string(got)
+	if !strings.Contains(html, "<math><semantics>") || !strings.Contains(html, "<msub><mi>w</mi><mn>2</mn></msub>") ||
+		strings.Contains(html, "$") {
+		t.Errorf("the wrapped formula is not drawn whole:\n%s", html)
+	}
+
+	got, err = markdownHTML("It costs $5 and\nsaves $3 in all.")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if strings.Contains(string(got), "<math") || !strings.Contains(string(got), "$5 and") {
+		t.Errorf("two prices became a formula:\n%s", got)
+	}
+}
+
 // TestMathOnItsOwnLines proves that $$ ... $$ makes a block formula, even over several lines, and that its commands
 // reach the converter whole.
 func TestMathOnItsOwnLines(t *testing.T) {

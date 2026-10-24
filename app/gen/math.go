@@ -45,7 +45,7 @@ func (mathExtension) Extend(m goldmark.Markdown) {
 }
 
 // mathParser finds formulas. A formula in the text opens with a dollar sign that has no space after it and closes with
-// one that has no space before it and no digit after it, on the same line. A formula on its own line is held by two
+// one that has no space before it and no digit after it, in the same paragraph. A formula on its own line is held by two
 // dollar signs on each side and may run over several lines.
 type mathParser struct{}
 
@@ -61,27 +61,46 @@ func (*mathParser) Parse(_ ast.Node, block text.Reader, _ parser.Context) ast.No
 	return parseInline(block, line)
 }
 
-// parseInline reads $...$ from line, which starts at the opening dollar sign, and returns nil if it holds no formula.
+// parseInline reads $...$ from line, which starts at the opening dollar sign, and returns nil, with the reader where it
+// was, if the paragraph holds no formula there. The formula may run over several lines of the paragraph, because
+// Markdown is wrapped at any space. A line that starts with the closing dollar sign does not close it, as a space comes
+// before it.
 func parseInline(block text.Reader, line []byte) ast.Node {
 	if len(line) < 3 || isSpace(line[1]) {
 		return nil
 	}
 
-	for i := 2; i < len(line); i++ {
-		if line[i] != '$' || line[i-1] == '\\' || isSpace(line[i-1]) {
-			continue
+	startLine, startPos := block.Position()
+	block.Advance(1)
+
+	var body bytes.Buffer
+
+	for {
+		line, _ = block.PeekLine()
+		if line == nil {
+			block.SetPosition(startLine, startPos)
+
+			return nil
 		}
 
-		if i+1 < len(line) && line[i+1] >= '0' && line[i+1] <= '9' {
-			continue
+		for i := 1; i < len(line); i++ {
+			if line[i] != '$' || line[i-1] == '\\' || isSpace(line[i-1]) {
+				continue
+			}
+
+			if i+1 < len(line) && line[i+1] >= '0' && line[i+1] <= '9' {
+				continue
+			}
+
+			body.Write(line[:i])
+			block.Advance(i + 1)
+
+			return &mathNode{tex: body.String()}
 		}
 
-		block.Advance(i + 1)
-
-		return &mathNode{tex: string(line[1:i])}
+		body.Write(line)
+		block.AdvanceLine()
 	}
-
-	return nil
 }
 
 // parseDisplay reads $$...$$ from the position of the block, over as many lines as it takes, and returns nil, with the
