@@ -155,10 +155,20 @@ No single straight line has the first pair on one side and the second pair on th
 a line, so it keeps fixing one mistake and creating another.
 
 The opposite is also true. If a line that separates the examples exists, the learning rule always finds one, after a
-limited number of steps. Albert Novikoff proved in 1962 a limit of the form $(R/\gamma)^2$ on the total number of
-mistakes. Here $R$ is how far the inputs are from the origin, and $\gamma$ is the margin of the best separating line.
-The bias is counted as one more input that is always 1. The test `TestSeparatesPointsOfALine` in the repository checks
-that the rule learns all 300 random points at three learning rates.
+limited number of steps. Albert Novikoff proved in 1962 that, starting from zero weights, the perceptron makes at most
+$(R/\gamma)^2$ mistakes in total, at any learning rate. To state it exactly, add the bias to every input as one more
+coordinate that is always 1. An input becomes $\mathbf{x} = (x_1, x_2, 1)$, and the weights with the bias become
+$\mathbf{w} = (w_1, w_2, b)$. Let $s$ be $+1$ when the right answer is 1 and $-1$ when it is 0. Then
+
+$$
+R = \max \, |\mathbf{x}|, \qquad \gamma = \max_{|\mathbf{w}| = 1} \; \min \, s \, (\mathbf{w} \cdot \mathbf{x}),
+$$
+
+where the maximum and the minimum run over all the examples. So $R$ is the largest length of an input with the extra
+coordinate, and $\gamma$ shows how well the best $\mathbf{w}$ of length 1 separates the examples. A line separates
+them exactly when $\gamma > 0$. For AND, $R^2 = 3$ and $\gamma \approx 0.24$, so the limit is about 52 mistakes, and
+the run above made 10. The test `TestSeparatesPointsOfALine` in the repository checks that the rule learns all 300
+random points at three learning rates.
 
 ## What Came Next
 
