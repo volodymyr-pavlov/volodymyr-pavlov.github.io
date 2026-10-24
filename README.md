@@ -79,6 +79,14 @@ their metadata.
 
 The build fails when `listed`, `articles` or `captions` names an article that has no file in `blog/`.
 
+## Math in articles
+
+Write TeX between dollar signs: `$x_i$` in the text, and `$$ ... $$` for a formula on its own lines. The build turns it into
+MathML, which the browser draws with its own maths font, so the page needs no script and no font of its own. The
+converter in `app/gen/tex.go` reads letters, numbers, scripts, fractions, roots, Greek letters, common symbols, spaces,
+`\text`, `\mathbf` and `\left ... \right`. A command it does not know stops the build and names the command. A dollar
+sign that starts no formula stays text, so `$5 and $10` is a price.
+
 ## Styles and scripts
 
 `web/css/main.css` and `web/js/main.js` are the entry points. The build bundles each with the files it imports into

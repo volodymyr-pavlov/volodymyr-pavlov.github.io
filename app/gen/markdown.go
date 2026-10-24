@@ -20,7 +20,7 @@ import (
 )
 
 var markdownRenderer = goldmark.New(
-	goldmark.WithExtensions(extension.GFM),
+	goldmark.WithExtensions(extension.GFM, mathExtension{}),
 	goldmark.WithParserOptions(parser.WithAutoHeadingID()),
 	goldmark.WithRendererOptions(
 		html.WithUnsafe(),

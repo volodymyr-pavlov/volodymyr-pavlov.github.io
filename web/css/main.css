@@ -323,6 +323,16 @@ blockquote {
     font-weight: 400;
 }
 
+/* Formulas are MathML, drawn by the browser in its own maths font. A formula on its own line is centred by the browser.
+   It does not scroll: a scrollbar on a short formula looks like a defect, and the formulas of the articles are short. */
+math {
+    font-size: 1.15em;
+}
+
+math[display="block"] {
+    margin: 0 0 1rem 0;
+}
+
 pre {
     font-family: var(--mono);
     font-size: 1rem;
