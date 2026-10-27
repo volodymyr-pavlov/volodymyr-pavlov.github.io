@@ -198,3 +198,55 @@ The answer to the first question is yes: it takes six passes at every rate, and 
 smaller with the rate. The perceptron starts at zero, and every step is a multiple of the rate, so the rate changes the
 size of the numbers but never the sign of a sum. The test `TestRateOnlyScalesTheWeights` in the repository checks this
 for 1, 0.1 and 0.001. If the starting weight is not zero, the rate would matter.
+
+## A Task: Choose the Weights by Hand
+
+Imagine a single-layer perceptron that must compute the logical function AND. It takes two inputs, $x_1$ and $x_2$,
+each 0 or 1, and the result must be:
+
+- $0 \text{ AND } 0 = 0$
+- $0 \text{ AND } 1 = 0$
+- $1 \text{ AND } 0 = 0$
+- $1 \text{ AND } 1 = 1$
+
+Find weights $w_1$, $w_2$ and a bias $b$ for which the perceptron gives the right answer on all four inputs. The rule is
+the one from the beginning of the article: the answer is 1 if the sum is above zero, and 0 otherwise.
+
+### 1. The Conditions
+
+The perceptron computes the sum $z = w_1 x_1 + w_2 x_2 + b$. The answer is 1 if $z > 0$ and 0 if $z \le 0$. Each of the
+four inputs gives one condition:
+
+- $(0, 0)$ must give 0: $w_1 \cdot 0 + w_2 \cdot 0 + b \le 0$, so $b \le 0$.
+- $(0, 1)$ must give 0: $w_2 + b \le 0$.
+- $(1, 0)$ must give 0: $w_1 + b \le 0$.
+- $(1, 1)$ must give 1: $w_1 + w_2 + b > 0$.
+
+### 2. Choosing the Numbers
+
+Start with the bias. It must not be positive, so take $b = -1.5$. Each weight alone must be at most 1.5, and the two
+together must get above it, so $w_1 = 1$ and $w_2 = 1$ work. Check all four inputs:
+
+| $x_1$ | $x_2$ | Sum | Answer |
+| --- | --- | --- | --- |
+| 0 | 0 | $1 \cdot 0 + 1 \cdot 0 - 1.5 = -1.5$ | 0 |
+| 0 | 1 | $1 \cdot 0 + 1 \cdot 1 - 1.5 = -0.5$ | 0 |
+| 1 | 0 | $1 \cdot 1 + 1 \cdot 0 - 1.5 = -0.5$ | 0 |
+| 1 | 1 | $1 \cdot 1 + 1 \cdot 1 - 1.5 = +0.5$ | 1 |
+
+All four answers are right.
+
+The solution is not unique. Any numbers will do if each weight alone is at most $|b|$, but their sum is greater than
+$|b|$. For example, $w_1 = w_2 = 1$ and $b = -1.2$ also work. The weights that the perceptron learned above, 0.2 and 0.1
+with the bias $-0.2$, are another solution of the same kind.
+
+### 3. The Geometry
+
+The dividing line is $w_1 x_1 + w_2 x_2 + b = 0$. With our numbers, it is
+
+$$
+x_1 + x_2 - 1.5 = 0, \qquad x_2 = -x_1 + 1.5.
+$$
+
+The line puts the point $(1, 1)$ on the positive side, where the answer is 1, and leaves the other three points on the
+negative side, where the answer is 0.
