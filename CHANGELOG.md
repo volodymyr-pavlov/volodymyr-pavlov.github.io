@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.6.0](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/compare/v1.5.2...v1.6.0) (2026-11-01)
+
+### Features
+
+* replace the logo and favicon with the husky mark ([4e63634](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/commit/4e63634e8a1f0a4867f5992d04f9ee754559abe5))
+
 ## [1.5.2](https://github.com/volodymyr-pavlov/volodymyr-pavlov.github.io/compare/v1.5.1...v1.5.2) (2026-10-24)
 
 ### Bug Fixes
